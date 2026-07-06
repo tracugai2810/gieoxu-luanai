@@ -431,28 +431,53 @@ function renderAIResult(markdownText) {
         { id: "BƯỚC 4", title: "LỜI KHUYÊN VÀ CHI TIẾT", icon: "💡", color: "#2ecc71" }
     ];
     
-    // Basic Markdown to HTML
+    // Better Markdown to HTML - handle bullets as block-level list items
     let htmlContent = markdownText
         .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-        .replace(/\*(.*?)\*/g, '<em>$1</em>')
-        .replace(/\n\n/g, '</p><p>')
-        .replace(/\n- /g, '<br>• ');
-        
-    htmlContent = `<p>${htmlContent}</p>`;
+        .replace(/\*(.*?)\*/g, '<em>$1</em>');
+    
+    // Convert markdown bullet lines into proper HTML list items
+    // Split by newline, process each line
+    let lines = htmlContent.split('\n');
+    let processedLines = [];
+    let inList = false;
+    
+    for (let i = 0; i < lines.length; i++) {
+        let line = lines[i].trim();
+        if (line.startsWith('- ') || line.startsWith('• ')) {
+            if (!inList) {
+                processedLines.push('<ul class="ai-bullet-list">');
+                inList = true;
+            }
+            processedLines.push('<li>' + line.substring(2) + '</li>');
+        } else {
+            if (inList) {
+                processedLines.push('</ul>');
+                inList = false;
+            }
+            if (line === '') {
+                processedLines.push('<br>');
+            } else {
+                processedLines.push('<p>' + line + '</p>');
+            }
+        }
+    }
+    if (inList) processedLines.push('</ul>');
+    
+    htmlContent = processedLines.join('\n');
     
     let currentHtml = htmlContent;
     
     steps.forEach((step, idx) => {
-        // Tách content theo tiêu đề bước (BƯỚC 1, BƯỚC 2...)
         const nextStepId = steps[idx+1] ? steps[idx+1].id : "KHONG_CO_BUOC_NAY";
         
-        // Regex: tìm ## BƯỚC 1 ... cho tới ## BƯỚC 2 hoặc hết chuỗi
         const regex = new RegExp(`(##\\s*${step.id}[\\s\\S]*?)(?=(##\\s*BƯỚC \\d+|$))`, 'i');
         const match = currentHtml.match(regex);
         
         let stepContent = match ? match[1] : '';
-        // Dọn dẹp tiêu đề khỏi nội dung
-        stepContent = stepContent.replace(new RegExp(`##\\s*${step.id}[\\s\\S]*?(<br>|<\\/p>|<p>|\\n)`, 'i'), '<p>');
+        // Clean step title from content
+        stepContent = stepContent.replace(new RegExp(`##\\s*${step.id}[^\\n<]*(<br>|<\\/p>|<p>|\\n)?`, 'i'), '');
+        stepContent = stepContent.replace(new RegExp(`<p>\\s*:?\\s*${step.title}\\s*:?\\s*</p>`, 'i'), '');
         
         if (stepContent.trim() !== '') {
             const stepDiv = document.createElement('div');
@@ -460,18 +485,18 @@ function renderAIResult(markdownText) {
             stepDiv.style.borderLeftColor = step.color;
             stepDiv.innerHTML = `
                 <div class="ai-step-header" onclick="this.parentElement.classList.toggle('collapsed')">
-                    <h4>${step.icon} ${step.id}: ${step.title}</h4>
+                    <h4>${step.icon} ${step.title}</h4>
                     <span class="ai-step-toggle">▼</span>
                 </div>
-                <div class="ai-step-content" style="line-height: 1.6;">${stepContent}</div>
+                <div class="ai-step-content">${stepContent}</div>
             `;
             resultBody.appendChild(stepDiv);
         }
     });
     
-    // Nếu AI trả về ko theo chuẩn các bước, fallback in ra toàn bộ
+    // Fallback nếu AI trả về không theo chuẩn
     if (resultBody.children.length === 0) {
-        resultBody.innerHTML = `<div class="ai-step-content" style="padding: 15px; line-height: 1.6; font-size: 15px;">${htmlContent}</div>`;
+        resultBody.innerHTML = `<div class="ai-step-content" style="padding: 15px;">${htmlContent}</div>`;
     }
     
     document.getElementById('aiResult').style.display = 'block';

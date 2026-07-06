@@ -1553,9 +1553,31 @@ body {
 }
 .ai-step-content {
     padding: 15px;
-    font-size: 0.95rem;
-    line-height: 1.6;
+    font-size: 1.05rem;
+    line-height: 1.8;
     color: #e0e0e0;
+    text-align: left;
+}
+.ai-step-content p {
+    margin: 0 0 8px 0;
+}
+.ai-step-content ul.ai-bullet-list {
+    list-style: none;
+    padding: 0;
+    margin: 8px 0;
+}
+.ai-step-content ul.ai-bullet-list li {
+    position: relative;
+    padding-left: 18px;
+    margin-bottom: 8px;
+    line-height: 1.7;
+}
+.ai-step-content ul.ai-bullet-list li::before {
+    content: "•";
+    position: absolute;
+    left: 0;
+    color: var(--accent);
+    font-weight: bold;
 }
 .ai-step-card.collapsed .ai-step-content {
     display: none;
