@@ -245,11 +245,11 @@ async function loadModels() {
         // Sửa nhanh: Ta sẽ tự tạo một mảng model dựa trên bảng giá đã chốt:
         
         availableModels = [
-            {id: "gemini-1.5-flash-lite-preview-06-17", name: "Cơ Bản", xuCost: 5, enabled: true},
-            {id: "gemini-2.0-flash-lite", name: "Tiêu Chuẩn", xuCost: 10, enabled: true},
-            {id: "gemini-1.5-flash", name: "Chi Tiết", xuCost: 15, enabled: true},
-            {id: "gemini-1.5-flash-preview-05-20", name: "Chuyên Sâu", xuCost: 20, enabled: true},
-            {id: "gemini-2.0-flash", name: "Đại Sư", xuCost: 30, enabled: true}
+            {id: "gemini-3.1-flash-lite", name: "Cơ Bản", xuCost: 5, enabled: true},
+            {id: "gemini-2.5-flash-lite", name: "Tiêu Chuẩn", xuCost: 10, enabled: true},
+            {id: "gemini-2.5-flash", name: "Chi Tiết", xuCost: 15, enabled: true},
+            {id: "gemini-3-flash", name: "Chuyên Sâu", xuCost: 20, enabled: true},
+            {id: "gemini-3.5-flash", name: "Đại Sư", xuCost: 30, enabled: true}
         ];
         renderModelCards();
     } catch (e) {
