@@ -104,12 +104,13 @@ module.exports = async (req, res) => {
         }
 
         if (req.method === 'POST' && action === 'update_xu') {
-            const { userId, amount, description } = req.body; // amount can be positive or negative
-            if (!userId || amount === undefined) return res.status(400).json({ error: 'Invalid body' });
+            const { email, amount, description } = req.body; // amount can be positive or negative
+            if (!email || amount === undefined) return res.status(400).json({ error: 'Invalid body' });
 
-            const targetProfile = await supabaseRequest(`/rest/v1/profiles?id=eq.${userId}&select=xu_balance`);
+            const targetProfile = await supabaseRequest(`/rest/v1/profiles?email=eq.${encodeURIComponent(email)}&select=id,xu_balance`);
             if (!targetProfile || targetProfile.length === 0) return res.status(404).json({ error: 'User not found' });
 
+            const userId = targetProfile[0].id;
             const newXu = targetProfile[0].xu_balance + amount;
             
             await supabaseRequest(`/rest/v1/profiles?id=eq.${userId}`, 'PATCH', { xu_balance: newXu });

@@ -77,7 +77,8 @@ module.exports = async (req, res) => {
         }
 
         if (req.method === 'POST' && action === 'checkin') {
-            const profiles = await supabaseRequest(`/rest/v1/profiles?id=eq.${userId}&select=xu_balance,last_checkin`);
+            const profiles = await supabaseRequest(`/rest/v1/profiles?id=eq.${userId}&select=xu_balance,last_checkin`, 'GET', null, false, { Authorization: `Bearer ${token}` });
+            if (!profiles || profiles.length === 0) return res.status(404).json({ error: 'Profile not found' });
             const profile = profiles[0];
             
             // Lấy ngày hiện tại ở VN (UTC+7)

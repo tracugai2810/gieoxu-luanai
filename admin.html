@@ -74,24 +74,29 @@
         </div>
 
         <div class="card">
-            <h2>👥 Quản Lý Người Dùng & Cộng Xu</h2>
-            <div class="form-group" style="display:flex; gap:10px;">
-                <input type="text" id="targetUserId" placeholder="Nhập User ID (copy từ bảng dưới)">
-                <input type="number" id="targetXuAmount" placeholder="Số lượng xu (+/-)">
-                <button class="btn" onclick="updateUserXu()">Thực Hiện</button>
-            </div>
+            <h3><span class="icon">👥</span> Quản Lý Người Dùng & Cộng Xu</h3>
             
-            <table>
+            <div class="form-row" style="margin-bottom: 20px;">
+                <div class="form-group" style="flex:1;">
+                    <input type="text" id="manageUserEmail" placeholder="Nhập Email người dùng">
+                </div>
+                <div class="form-group" style="width: 150px;">
+                    <input type="number" id="manageAmount" placeholder="Số lượng xu (+/-)">
+                </div>
+                <button class="btn btn-warning" onclick="updateUserXu()">Thực Hiện</button>
+            </div>
+
+            <table class="data-table">
                 <thead>
                     <tr>
-                        <th>User ID</th>
+                        <th>Email</th>
                         <th>Số Xu</th>
                         <th>Quyền</th>
                         <th>Ngày tạo</th>
                     </tr>
                 </thead>
                 <tbody id="usersTableBody">
-                    <!-- Injected via JS -->
+                    <!-- Users here -->
                 </tbody>
             </table>
         </div>

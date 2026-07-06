@@ -83,7 +83,7 @@ async function loadAdminData() {
             const date = new Date(u.created_at).toLocaleDateString('vi-VN');
             tbody.innerHTML += `
                 <tr>
-                    <td style="font-family:monospace; font-size:0.8rem">${u.id}</td>
+                    <td style="font-weight:600">${u.email || u.id}</td>
                     <td style="color:#f1c40f; font-weight:bold">${u.xu_balance}</td>
                     <td>${u.role}</td>
                     <td>${date}</td>
@@ -111,17 +111,17 @@ async function saveApiKeys() {
 }
 
 async function updateUserXu() {
-    const userId = document.getElementById('targetUserId').value.trim();
-    const amountStr = document.getElementById('targetXuAmount').value;
+    const email = document.getElementById('manageUserEmail').value.trim();
+    const amountStr = document.getElementById('manageAmount').value;
     const amount = parseInt(amountStr);
     
-    if (!userId || isNaN(amount)) {
-        return alert("Vui lòng nhập đủ ID và số lượng (âm hoặc dương)!");
+    if (!email || isNaN(amount)) {
+        return alert("Vui lòng nhập đủ Email và số lượng xu (âm hoặc dương)!");
     }
     
-    if (confirm(`Bạn chắc chắn muốn cộng/trừ ${amount} xu cho user ${userId}?`)) {
+    if (confirm(`Bạn chắc chắn muốn cộng/trừ ${amount} xu cho user ${email}?`)) {
         try {
-            await fetchAdmin('update_xu', 'POST', { userId, amount });
+            await fetchAdmin('update_xu', 'POST', { email, amount });
             alert("Thành công!");
             loadAdminData(); // reload bảng
         } catch (e) {
