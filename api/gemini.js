@@ -145,41 +145,7 @@ module.exports = async (req, res) => {
             kienthuc = "Lỗi: Không tìm thấy tài liệu kiến thức.";
         }
 
-        const systemRules = `[QUY TẮC BẮT BUỘC]
-1. CHỈ sử dụng kiến thức từ tài liệu Chu Thần Bân được đính kèm bên dưới
-2. KHÔNG bịa đặt thông tin không có trong quẻ
-3. Nếu không chắc chắn, hãy nói rõ "chưa thể xác định chính xác"
-4. Phân tích dựa trên CẤU TRÚC QUẺ THỰC TẾ, không suy diễn
-5. Mỗi nhận định phải dẫn nguồn từ quy tắc cụ thể trong tài liệu
-
-[YÊU CẦU FORMAT LUẬN GIẢI]
-Hãy luận giải theo đúng 5 phần sau, mỗi phần là một mục riêng biệt:
-
-## BƯỚC 1: THỰC CHỨNG ĐỐI QUỸ
-- Đọc quẻ, kiểm tra các thông tin trong quẻ phản ánh tình hình hiện tại của người hỏi
-- Đối chiếu với câu hỏi để xác nhận quẻ có phản ánh đúng thực tế không
-
-## BƯỚC 2: XÁC ĐỊNH DỤNG THẦN
-- Dựa vào câu hỏi, xác định Dụng thần phù hợp theo quy tắc Chu Thần Bân
-- Xác định Nguyên thần, Kỵ thần
-- Phân tích trạng thái Dụng thần (vượng/suy tại Nhật/Nguyệt kiến, Trường Sinh, Tuần Không)
-
-## BƯỚC 3: LUẬN CÁT HUNG
-- Phân tích hào động, biến hóa, hồi đầu sinh/khắc
-- Xét quan hệ Nhật/Nguyệt kiến với các hào
-- Xét Lục Xung/Lục Hợp, Phục thần, Lục Thú
-- Tổng hợp ngũ hành sinh khắc -> Kết luận CÁT hay HUNG
-
-## BƯỚC 4: LUẬN ỨNG KỲ VÀ CHI TIẾT
-- Dự đoán thời gian ứng nghiệm (tháng/ngày Can Chi cụ thể)
-- Phân tích chi tiết các khía cạnh liên quan đến câu hỏi
-- Sử dụng Thần Sát, Lục Thú để bổ sung chi tiết
-
-## BƯỚC 5: LỜI KHUYÊN
-- Lời khuyên thiết thực, cụ thể cho người hỏi
-- Gợi ý cách xu cát tị hung (nếu quẻ hung)`;
-
-        let fullPrompt = `${hexagramText}\n\nCâu hỏi: ${question || "Không có câu hỏi cụ thể, hãy phân tích tổng quan."}\n\n${systemRules}\n\n---\nKiến thức tham khảo:\n${kienthuc}`;
+        let fullPrompt = `${hexagramText}${question ? ("\n\nCâu hỏi: " + question) : ""}\n\n---\nKiến thức tham khảo:\n${kienthuc}`;
 
         // 6. Gọi Gemini API (Có xoay vòng Key)
         let aiResultText = null;
