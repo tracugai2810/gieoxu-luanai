@@ -464,6 +464,46 @@ function renderAIResult(markdownText) {
     }, 100);
 }
 
+// Tính năng tải ảnh kết quả luận giải
+async function downloadAIResultImage() {
+    if (typeof html2canvas === 'undefined') {
+        alert("Thư viện chụp ảnh chưa được tải. Vui lòng thử lại sau.");
+        return;
+    }
+    
+    const resultContainer = document.getElementById('aiResult');
+    if (!resultContainer) return;
+
+    // Tạm thời mở rộng tất cả các thẻ accordion để chụp đủ chữ
+    const headers = resultContainer.querySelectorAll('.ai-step-header');
+    headers.forEach(h => h.parentElement.classList.remove('collapsed'));
+
+    // Ẩn nút tải ảnh trong lúc chụp
+    const btnDownload = resultContainer.querySelector('.btn-download-img');
+    if (btnDownload) btnDownload.style.display = 'none';
+
+    try {
+        const canvas = await html2canvas(resultContainer, {
+            backgroundColor: '#0f172a', // Màu nền dark theme
+            scale: 2, // Tăng độ nét
+            useCORS: true,
+            logging: false
+        });
+
+        // Tạo link tải ảnh
+        const link = document.createElement('a');
+        link.download = `Luan_Giai_Luc_Hao_${new Date().getTime()}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+    } catch (error) {
+        console.error("Lỗi khi tạo ảnh luận giải:", error);
+        alert("Có lỗi xảy ra khi tạo ảnh. Vui lòng thử lại.");
+    } finally {
+        // Hiện lại nút tải ảnh
+        if (btnDownload) btnDownload.style.display = 'flex';
+    }
+}
+
 // Close dropdown when clicking outside
 window.addEventListener('click', function(e) {
     const dropdownMenu = document.getElementById('userDropdownMenu');

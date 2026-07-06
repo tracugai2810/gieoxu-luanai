@@ -53,14 +53,17 @@ async function fetchAdmin(action, method = 'GET', body = null) {
 
 async function loadAdminData() {
     try {
-        // Load stats
-        const statsData = await fetchAdmin('stats');
+        // Load all data concurrently
+        const [statsData, configData, usersData] = await Promise.all([
+            fetchAdmin('stats'),
+            fetchAdmin('config'),
+            fetchAdmin('users')
+        ]);
+
         document.getElementById('statUsers').textContent = statsData.stats.totalUsers;
         document.getElementById('statQueries').textContent = statsData.stats.queriesToday;
         document.getElementById('statXu').textContent = statsData.stats.xuConsumedToday;
         
-        // Load config (API Keys)
-        const configData = await fetchAdmin('config');
         const apiKeysRow = configData.data.find(c => c.config_key === 'api_keys');
         const keys = apiKeysRow ? apiKeysRow.config_value : ["", "", "", "", ""];
         
@@ -75,8 +78,6 @@ async function loadAdminData() {
             `;
         }
         
-        // Load users
-        const usersData = await fetchAdmin('users');
         const tbody = document.getElementById('usersTableBody');
         tbody.innerHTML = '';
         usersData.data.forEach(u => {

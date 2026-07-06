@@ -1587,11 +1587,11 @@ body {
     position: absolute;
     right: 0;
     top: calc(100% + 10px);
-    background: var(--card-bg);
+    background: #1e293b;
     min-width: 180px;
     border-radius: 12px;
     box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-    border: 1px solid rgba(255,215,0,0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     z-index: 200;
     overflow: hidden;
     animation: fadeIn 0.2s ease;
@@ -1613,7 +1613,7 @@ body {
 }
 
 .dropdown-item:hover {
-    background: rgba(255,215,0,0.1);
+    background: rgba(255,255,255,0.05);
     color: #f1c40f;
 }
 

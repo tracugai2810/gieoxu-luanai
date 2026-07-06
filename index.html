@@ -71,6 +71,9 @@
 
     <!-- CSS -->
     <link rel="stylesheet" href="styles.css?v=2">
+    
+    <!-- html2canvas for exporting results -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 
 <body>
@@ -187,12 +190,15 @@
                     </div>
 
                     <div id="aiLoading" class="ai-loading" style="display:none;">
-                        <div class="ai-spinner"></div>
-                        <p>AI đang phân tích Tượng Quẻ, Ngũ Hành và Thần Sát... Vui lòng chờ trong giây lát.</p>
-                    </div>
+                    <div class="spinner"></div>
+                    <p style="margin-top: 15px; font-weight: 500; color: var(--accent);">Đang luận giải, bạn vui lòng đợi chút..</p>
+                </div>
 
                     <div id="aiResult" class="ai-result-container" style="display:none;">
-                        <h3>✨ Kết Quả Luận Giải</h3>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                            <h3 style="margin:0;">✨ Kết Quả Luận Giải</h3>
+                            <button class="btn-download-img" onclick="downloadAIResultImage()" style="background: rgba(255,215,0,0.1); border: 1px solid #f1c40f; color: #f1c40f; padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 14px; display: flex; align-items: center; gap: 5px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> Lưu Ảnh</button>
+                        </div>
                         <div id="aiResultBody" class="ai-result-body">
                             <!-- Steps will be rendered here -->
                         </div>
@@ -289,34 +295,7 @@
         </div>
     </div>
     
-    <section class="seo-content-section">
-        <details class="seo-details">
-            <summary class="seo-summary">Tìm hiểu thêm về công cụ Gieo Quẻ Kinh Dịch</summary>
-            <div class="seo-container">
-                <h2>Công Cụ Gieo Quẻ Kinh Dịch Online Miễn Phí</h2>
-                <p>Khi đứng trước những quyết định quan trọng, việc <strong>gieo quẻ kinh dịch online</strong> (hay còn gọi là <strong>gieo que online</strong>) là giải pháp tâm linh tiện lợi giúp bạn tìm kiếm lời khuyên từ cổ nhân. Ứng dụng này giúp bạn thực hiện <strong>cách gieo quẻ kinh dịch</strong> bằng 3 đồng xu ngay trên điện thoại một cách chuẩn xác, mang lại trải nghiệm <strong>bốc quẻ kinh dịch</strong> chân thực nhất.</p>
-                
-                <h3>Quẻ Lục Hào là gì?</h3>
-                <p>Bản chất của ứng dụng này là phương pháp <strong>gieo quẻ lục hào</strong> cổ xưa. Khi bạn gieo đủ 6 lần, hệ thống sẽ <strong>lấy quẻ kinh dịch</strong> hoàn chỉnh gồm 6 hào. Mỗi một <strong>quẻ lục hào</strong> đều mang ý nghĩa sâu sắc, giúp bạn có thêm góc nhìn chiêm nghiệm về công danh, tài lộc hay sự nghiệp.</p>
-                
-                <h3>Câu Hỏi Thường Gặp (FAQ)</h3>
-                <div class="faq-item">
-                    <h4>1. Gieo quẻ hỏi việc là gì?</h4>
-                    <p><strong>Gieo quẻ hỏi việc</strong> (hoặc <strong>gieo quẻ kinh dịch hỏi việc</strong>) là khi bạn đang phân vân về quyết định thăng tiến, nhảy việc hay kinh doanh. Hãy tĩnh tâm suy nghĩ về công việc đó, sau đó <strong>rút quẻ kinh dịch</strong> để xem cát hung. Lưu ý không nên <strong>gieo quẻ hỏi việc 2</strong> lần cho cùng một vấn đề trong thời gian ngắn để đảm bảo sự linh ứng.</p>
-                </div>
-                <div class="faq-item">
-                    <h4>2. Có nên gieo quẻ đầu năm không?</h4>
-                    <p>Rất nên! <strong>Gieo quẻ đầu năm</strong> là nét đẹp văn hóa để xem vận hạn, may rủi. Việc <strong>rút quẻ online</strong> vào dịp giao thừa hoặc đầu xuân mang lại những chiêm nghiệm thú vị cho suốt một năm tới.</p>
-                </div>
-                <div class="faq-item">
-                    <h4>3. Làm sao để gieo quẻ chuẩn nhất?</h4>
-                    <p>Dù là <strong>gieo que kinh dich</strong> thực tế hay gieo trên web, nguyên tắc quan trọng nhất là "Tâm thành tắc linh". Trước khi <strong>gieo quẻ</strong>, hãy rửa tay sạch sẽ, giữ tâm thanh tịnh và chỉ tập trung vào một câu hỏi duy nhất.</p>
-                </div>
-                
-                <p class="seo-note">Lưu ý: Mọi kết quả từ việc gieo quẻ chỉ mang tính chất tham khảo, giúp bạn có thêm góc nhìn đa chiều để tự tin đưa ra quyết định của riêng mình.</p>
-            </div>
-        </details>
-    </section>
+
 
     <!-- Auth Modal -->
     <div id="authModal" class="auth-modal">
