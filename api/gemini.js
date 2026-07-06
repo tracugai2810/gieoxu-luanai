@@ -145,7 +145,15 @@ module.exports = async (req, res) => {
             kienthuc = "Lỗi: Không tìm thấy tài liệu kiến thức.";
         }
 
-        let fullPrompt = `${hexagramText}${question ? ("\n\nCâu hỏi: " + question) : ""}\n\n---\nKiến thức tham khảo:\n${kienthuc}`;
+        const systemRules = `[YÊU CẦU BẮT BUỘC]: Hãy viết bài luận ĐẦY ĐỦ CHI TIẾT, KHÔNG được rút ngắn hay lược bỏ nội dung. CHỈ dùng kiến thức đính kèm để luận.
+Bạn PHẢI trình bày kết quả theo ĐÚNG 4 BƯỚC sau, mỗi bước bắt đầu bằng đúng cú pháp "## BƯỚC X:":
+
+## BƯỚC 1: THỰC CHỨNG ĐỐI QUỸ
+## BƯỚC 2: XÁC ĐỊNH DỤNG THẦN
+## BƯỚC 3: LUẬN CÁT HUNG VÀ ỨNG KỲ
+## BƯỚC 4: LỜI KHUYÊN VÀ CHI TIẾT`;
+
+        let fullPrompt = `${hexagramText}${question ? ("\n\nCâu hỏi: " + question) : ""}\n\n---\nKiến thức tham khảo:\n${kienthuc}\n\n---\n${systemRules}`;
 
         // 6. Gọi Gemini API (Có xoay vòng Key)
         let aiResultText = null;

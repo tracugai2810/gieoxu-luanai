@@ -407,6 +407,13 @@ function renderAIResult(markdownText) {
     const resultBody = document.getElementById('aiResultBody');
     resultBody.innerHTML = '';
     
+    const steps = [
+        { id: "BƯỚC 1", title: "THỰC CHỨNG ĐỐI QUỸ", icon: "🔍", color: "#3498db" },
+        { id: "BƯỚC 2", title: "XÁC ĐỊNH DỤNG THẦN", icon: "🎯", color: "#e67e22" },
+        { id: "BƯỚC 3", title: "LUẬN CÁT HUNG VÀ ỨNG KỲ", icon: "⚖️", color: "#e74c3c" },
+        { id: "BƯỚC 4", title: "LỜI KHUYÊN VÀ CHI TIẾT", icon: "💡", color: "#2ecc71" }
+    ];
+    
     // Basic Markdown to HTML
     let htmlContent = markdownText
         .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
@@ -416,8 +423,39 @@ function renderAIResult(markdownText) {
         
     htmlContent = `<p>${htmlContent}</p>`;
     
-    // Render raw HTML
-    resultBody.innerHTML = `<div class="ai-step-content" style="padding: 15px; line-height: 1.6; font-size: 15px;">${htmlContent}</div>`;
+    let currentHtml = htmlContent;
+    
+    steps.forEach((step, idx) => {
+        // Tách content theo tiêu đề bước (BƯỚC 1, BƯỚC 2...)
+        const nextStepId = steps[idx+1] ? steps[idx+1].id : "KHONG_CO_BUOC_NAY";
+        
+        // Regex: tìm ## BƯỚC 1 ... cho tới ## BƯỚC 2 hoặc hết chuỗi
+        const regex = new RegExp(`(##\\s*${step.id}.*?)(?=(##\\s*BƯỚC \\d+|$))`, 'i');
+        const match = currentHtml.match(regex);
+        
+        let stepContent = match ? match[1] : '';
+        // Dọn dẹp tiêu đề khỏi nội dung
+        stepContent = stepContent.replace(new RegExp(`##\\s*${step.id}.*?(<br>|<\\/p>|<p>)`, 'i'), '<p>');
+        
+        if (stepContent.trim() !== '') {
+            const stepDiv = document.createElement('div');
+            stepDiv.className = 'ai-step-card';
+            stepDiv.style.borderLeftColor = step.color;
+            stepDiv.innerHTML = `
+                <div class="ai-step-header" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <h4>${step.icon} ${step.id}: ${step.title}</h4>
+                    <span class="ai-step-toggle">▼</span>
+                </div>
+                <div class="ai-step-content" style="line-height: 1.6;">${stepContent}</div>
+            `;
+            resultBody.appendChild(stepDiv);
+        }
+    });
+    
+    // Nếu AI trả về ko theo chuẩn các bước, fallback in ra toàn bộ
+    if (resultBody.children.length === 0) {
+        resultBody.innerHTML = `<div class="ai-step-content" style="padding: 15px; line-height: 1.6; font-size: 15px;">${htmlContent}</div>`;
+    }
     
     document.getElementById('aiResult').style.display = 'block';
     // Scroll
