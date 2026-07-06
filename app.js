@@ -560,7 +560,7 @@ function renderCaptureHTML(data) {
         <div class="info-header">
             <div class="info-content">
                 <div class="info-line"><strong>Ngày giờ:</strong> ${data.formattedDate} &nbsp;&nbsp;&nbsp;&nbsp; <strong>Phương pháp:</strong> ${methodText}</div>
-                <div class="info-line"><strong>Can chi:</strong> ${dateInfo.fullCanChi}</div>
+                <div class="info-line" style="max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"><strong>Câu hỏi:</strong> ${(() => { const q = (document.getElementById('preTossQuestion') ? document.getElementById('preTossQuestion').value.trim() : ''); return q.length > 60 ? q.substring(0, 60) + '...' : (q || '—'); })()}</div>
                 <div class="info-line"><strong>Hào tâm:</strong> ${dateInfo.haoTamText || ''} &nbsp;&nbsp;&nbsp;&nbsp; <strong>Tuần Không:</strong> <span class="highlight">${dateInfo.tuanKhong}</span></div>
                 <div class="info-line"><strong>Nhật Thần:</strong> <span class="highlight">${dateInfo.nhatThan}</span> &nbsp;&nbsp;&nbsp;&nbsp; <strong>Nguyệt Lệnh:</strong> <span class="highlight">${dateInfo.nguyetLenh}</span></div>
             </div>
@@ -1459,10 +1459,10 @@ function performToss() {
         } else {
             tossBtn.style.display = 'none';
             document.getElementById('toss-status').innerText = 'Đã gieo xong 6 hào!';
-            // Auto finish toss after a short delay for user to see the last line
+            // Auto finish toss immediately
             setTimeout(() => {
                 finishTossSequence();
-            }, 1000);
+            }, 300);
         }
 
     }, 2000);

@@ -280,7 +280,8 @@ function generateHexagramText() {
     const data = window.currentHexData;
     const { mainName, changedName, linesData, movingLines, dateInfo, changedAttr, mainAttr } = data;
 
-    let text = "- Nhật Lệnh: [" + dateInfo.nhatThan + "]; Nguyệt Lệnh: [" + dateInfo.nguyetLenh + "]\n";
+    let text = "Bạn là Đại sư Kinh Dịch với nhiều năm kinh nghiệm luận quẻ Lục Hào theo phương pháp Chu Thần Bân. Hãy phân tích và luận giải quẻ dịch dưới đây:\n\n";
+    text += "- Nhật Lệnh: [" + dateInfo.nhatThan + "]; Nguyệt Lệnh: [" + dateInfo.nguyetLenh + "]\n";
 
     let ssText = "";
     if (Array.isArray(dateInfo.shenshaRaw)) {
@@ -480,7 +481,7 @@ function renderAIResult(markdownText) {
     }, 100);
 }
 
-// Tính năng tải ảnh kết quả luận giải
+// Tính năng tải ảnh kết quả luận giải (cùng logic mobile như downloadImage)
 async function downloadAIResultImage() {
     if (typeof html2canvas === 'undefined') {
         alert("Thư viện chụp ảnh chưa được tải. Vui lòng thử lại sau.");
@@ -500,8 +501,8 @@ async function downloadAIResultImage() {
 
     try {
         const canvas = await html2canvas(resultContainer, {
-            backgroundColor: '#0f172a', // Màu nền dark theme
-            scale: 2, // Tăng độ nét
+            backgroundColor: '#0f172a',
+            scale: 2,
             useCORS: true,
             logging: false
         });
@@ -522,20 +523,25 @@ async function downloadAIResultImage() {
                     const file = new File([blob], filename, { type: 'image/png' });
                     const shareData = { files: [file] };
                     if (navigator.canShare(shareData)) {
-                        navigator.share(shareData).catch(err => console.log('Share error', err));
+                        navigator.share(shareData).catch(err => {
+                            console.log('Share error', err);
+                            fallbackDownload(imageDataUrl, filename);
+                        });
                     } else {
-                        forceDownload(imageDataUrl, filename);
+                        fallbackDownload(imageDataUrl, filename);
                     }
                 });
+        } else if (typeof fallbackDownload === 'function') {
+            fallbackDownload(imageDataUrl, filename);
         } else {
-            forceDownload(imageDataUrl, filename);
-        }
-
-        function forceDownload(url, name) {
+            // Inline fallback nếu fallbackDownload chưa có
             const link = document.createElement('a');
-            link.download = name;
-            link.href = url;
+            link.download = filename;
+            link.href = imageDataUrl;
+            link.style.display = 'none';
+            document.body.appendChild(link);
             link.click();
+            setTimeout(() => document.body.removeChild(link), 200);
         }
     } catch (error) {
         console.error("Lỗi khi tạo ảnh luận giải:", error);

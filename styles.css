@@ -1028,6 +1028,28 @@ body {
     .btn-main-cta { padding: 14px 16px; font-size: 1rem; }
     .cta-coin-icon { width: 34px; height: 34px; }
     .coin-wrapper { width: 65px; height: 65px; }
+    .auth-right-centered { gap: 8px; }
+    .btn-auth { padding: 8px 12px; font-size: 0.9rem; }
+    .btn-auto-divine { padding: 12px 14px; font-size: 1rem; }
+}
+
+/* Mobile touch optimization */
+@media (max-width: 500px) {
+    .auth-modal-content {
+        width: 94%;
+        padding: 20px 16px;
+    }
+    .btn-auto-divine {
+        padding: 14px 16px;
+        font-size: 1.05rem;
+    }
+    .auth-right-centered {
+        gap: 10px;
+    }
+    .btn-auth {
+        padding: 10px 14px;
+        font-size: 0.95rem;
+    }
 }
 
 /* ========================================

@@ -145,15 +145,30 @@ module.exports = async (req, res) => {
             kienthuc = "Lỗi: Không tìm thấy tài liệu kiến thức.";
         }
 
-        const systemRules = `[YÊU CẦU BẮT BUỘC]: Hãy viết bài luận ĐẦY ĐỦ CHI TIẾT, KHÔNG được rút ngắn hay lược bỏ nội dung. CHỈ dùng kiến thức đính kèm để luận.
+        const systemRules = `[QUY TẮC BẮT BUỘC - VI PHẠM LÀ KHÔNG CHẤP NHẬN ĐƯỢC]:
+
+1. BẮT BUỘC CHỈ sử dụng kiến thức từ tài liệu đính kèm bên dưới để luận giải. TUYỆT ĐỐI KHÔNG được tự bịa, suy diễn, hay sử dụng kiến thức bên ngoài tài liệu.
+2. Khi phân tích từng hào, PHẢI đối chiếu chính xác ngũ hành sinh khắc, trạng thái vượng suy tại Nhật Lệnh và Nguyệt Lệnh theo đúng quy tắc trong tài liệu. KHÔNG được nói hào vượng khi nó thực sự suy, hoặc ngược lại.
+3. PHẢI xác định đúng Dụng Thần dựa trên lục thân và câu hỏi. Ví dụ: hỏi tài lộc thì Dụng Thần là Thê Tài, hỏi công danh thì là Quan Quỷ, hỏi sức khỏe thì là Tử Tôn hoặc chính mình (Thế hào).
+4. PHẢI luận chính xác mối quan hệ sinh - khắc - hợp - xung giữa các hào, Nhật Lệnh, Nguyệt Lệnh. KHÔNG được đảo ngược chiều sinh khắc.
+5. Nếu quẻ có động hào, PHẢI luận rõ hào động hóa thành gì, hóa tiến hay hóa thoái, hóa hồi đầu hay hóa tuyệt. Nếu quẻ tĩnh (không có động hào), PHẢI nói rõ quẻ tĩnh và luận theo vượng suy của Dụng Thần.
+6. Viết bài luận ĐẦY ĐỦ, CHI TIẾT, có logic rõ ràng. KHÔNG được rút ngắn hay bỏ qua bước nào.
+
 Bạn PHẢI trình bày kết quả theo ĐÚNG 4 BƯỚC sau, mỗi bước bắt đầu bằng đúng cú pháp "## BƯỚC X:":
 
 ## BƯỚC 1: THỰC CHỨNG ĐỐI QUỸ
-## BƯỚC 2: XÁC ĐỊNH DỤNG THẦN
-## BƯỚC 3: LUẬN CÁT HUNG VÀ ỨNG KỲ
-## BƯỚC 4: LỜI KHUYÊN VÀ CHI TIẾT`;
+(Mô tả tổng quan quẻ: tên quẻ, họ quái, thế ứng, các hào, trạng thái động/tĩnh, tuần không)
 
-        let fullPrompt = `${hexagramText}${question ? ("\n\nCâu hỏi: " + question) : ""}\n\n---\nKiến thức tham khảo:\n${kienthuc}\n\n---\n${systemRules}`;
+## BƯỚC 2: XÁC ĐỊNH DỤNG THẦN
+(Dựa trên câu hỏi, xác định Dụng Thần là lục thân nào, nằm ở hào nào, trạng thái vượng suy ra sao)
+
+## BƯỚC 3: LUẬN CÁT HUNG VÀ ỨNG KỲ
+(Phân tích chi tiết Dụng Thần được sinh hay bị khắc, nhật nguyệt có hỗ trợ không, kết luận cát/hung, dự đoán thời gian ứng nghiệm nếu có thể)
+
+## BƯỚC 4: LỜI KHUYÊN VÀ CHI TIẾT
+(Đưa ra lời khuyên thiết thực dựa trên kết quả luận giải)`;
+
+        let fullPrompt = `${hexagramText}${question ? ("\n\nCâu hỏi của người xem: " + question) : ""}\n\n---\nTÀI LIỆU KIẾN THỨC (BẮT BUỘC tuân theo, KHÔNG được dùng nguồn khác):\n${kienthuc}\n\n---\n${systemRules}`;
 
         // 6. Gọi Gemini API (Có xoay vòng Key)
         let aiResultText = null;
