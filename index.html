@@ -88,30 +88,25 @@
                 <button id="btnLogin" class="btn-auth" onclick="showAuthModal('login')">Đăng Nhập</button>
                 <button id="btnSignup" class="btn-auth btn-primary" onclick="showAuthModal('signup')">Nhận 5 Xu Miễn Phí</button>
                 
-                <div id="userMenu" class="user-menu-wrapper" style="display:none;">
-                    <button class="btn-checkin pulse" id="btnCheckin" onclick="dailyCheckin()">Điểm Danh</button>
-                    
-                    <div class="user-dropdown">
-                        <div class="dropdown-trigger" onclick="document.getElementById('userDropdownMenu').classList.toggle('show')">
-                            <div class="avatar">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                            </div>
-                            <div class="user-info-short">
-                                <div class="user-name" id="userName">user@gmail.com</div>
-                                <div class="user-balance">Số dư: <strong style="color:var(--accent);"><span id="xuAmount">0</span> xu</strong></div>
-                            </div>
+                <div id="userMenu" class="user-menu-wrapper" style="display:none; align-items: center; gap: 10px;">
+                    <div class="user-info-inline" style="display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.05); padding: 6px 12px; border-radius: 20px; border: 1px solid rgba(255,215,0,0.3);">
+                        <div class="avatar" style="width: 24px; height: 24px; display: none;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
                         </div>
-                        
-                        <div class="dropdown-menu" id="userDropdownMenu">
-                            <div class="dropdown-item" onclick="alert('Tính năng Nạp Tiền tự động đang phát triển. Vui lòng liên hệ Zalo Admin để nạp nhé!'); document.getElementById('userDropdownMenu').classList.remove('show');">
-                                <span style="font-size: 1.2rem;">💳</span> Nạp Tiền
-                            </div>
-                            <div class="dropdown-divider"></div>
-                            <div class="dropdown-item text-danger" onclick="logout()">
-                                <span style="font-size: 1.2rem;">🚪</span> Đăng Xuất
-                            </div>
+                        <div class="user-info-short" style="display: flex; flex-direction: column; line-height: 1.2;">
+                            <div class="user-name" id="userName" style="font-size: 0.8rem; color: #aaa; max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">user@gmail.com</div>
+                            <div class="user-balance" style="font-size: 0.95rem;">Số dư: <strong style="color:var(--accent);"><span id="xuAmount">0</span> xu</strong></div>
                         </div>
                     </div>
+                    
+                    <button class="btn-earn-xu pulse" onclick="openMissionsModal()" style="background: linear-gradient(135deg, #f39c12, #e67e22); color: #fff; border: none; padding: 8px 15px; border-radius: 20px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 5px; font-size: 0.95rem; box-shadow: 0 4px 10px rgba(230, 126, 34, 0.3);">
+                        <span>💰</span> Kiếm Xu
+                    </button>
+                    
+                    <button class="btn-logout" onclick="logout()" style="background: rgba(231, 76, 60, 0.1); color: #e74c3c; border: 1px solid rgba(231, 76, 60, 0.3); padding: 8px 12px; border-radius: 20px; font-weight: 600; cursor: pointer; font-size: 0.9rem; display: flex; align-items: center; gap: 5px; transition: all 0.2s;">
+                        <span class="icon-logout" style="font-size: 1rem;">🚪</span>
+                        <span class="text-logout">Đăng Xuất</span>
+                    </button>
                 </div>
             </div>
         </div>
@@ -343,6 +338,22 @@
       ]
     }
     </script>
+    <!-- Missions Modal (Kiếm Xu) -->
+    <div id="missionsModal" class="auth-modal" style="display:none; align-items: flex-start; padding-top: 5vh; overflow-y: auto;">
+        <div class="auth-modal-content" style="max-width: 500px; width: 95%; margin: auto; position: relative;">
+            <button class="auth-close" onclick="closeMissionsModal()">✕</button>
+            <h2 style="color: #f1c40f; text-align: center; margin-top: 0; margin-bottom: 20px; font-size: 1.5rem;">💰 Nhiệm Vụ Kiếm Xu</h2>
+            
+            <div id="missionsContainer">
+                <div style="text-align: center; color: #aaa; padding: 20px;">Đang tải danh sách nhiệm vụ...</div>
+            </div>
+            
+            <div style="text-align: center; margin-top: 15px; font-size: 0.85rem; color: #888;">
+                Xu nhận được có thể dùng để xem luận giải AI chuyên sâu.
+            </div>
+        </div>
+    </div>
+
 </body>
 
 </html>

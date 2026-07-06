@@ -149,6 +149,37 @@ module.exports = async (req, res) => {
             return res.status(200).json({ success: true, message: 'Đã đổi mật khẩu thành công' });
         }
 
+        // ==========================================
+        // QUẢN LÝ NHIỆM VỤ (MISSIONS)
+        // ==========================================
+        if (req.method === 'GET' && action === 'get_missions') {
+            const data = await supabaseRequest('/rest/v1/missions?order=created_at.desc');
+            return res.status(200).json({ success: true, data: data || [] });
+        }
+
+        if (req.method === 'POST' && action === 'add_mission') {
+            const { title, reward_xu, action_url, is_hot } = req.body;
+            await supabaseRequest('/rest/v1/missions', 'POST', {
+                title, reward_xu, action_url, is_hot
+            });
+            return res.status(200).json({ success: true });
+        }
+
+        if (req.method === 'POST' && action === 'update_mission') {
+            const { id, is_active } = req.body;
+            await supabaseRequest(`/rest/v1/missions?id=eq.${id}`, 'PATCH', { is_active });
+            return res.status(200).json({ success: true });
+        }
+
+        if (req.method === 'POST' && action === 'delete_mission') {
+            const { id } = req.body;
+            // Xóa user_missions liên quan trước
+            await supabaseRequest(`/rest/v1/user_missions?mission_id=eq.${id}`, 'DELETE');
+            // Sau đó xóa mission
+            await supabaseRequest(`/rest/v1/missions?id=eq.${id}`, 'DELETE');
+            return res.status(200).json({ success: true });
+        }
+
         return res.status(404).json({ error: 'Action not found' });
 
     } catch (error) {

@@ -1512,3 +1512,146 @@ function finishTossSequence() {
 document.addEventListener('DOMContentLoaded', init);
 
 // End of Divination functions
+
+// ============================================
+// MISSIONS LOGIC (Kiếm Xu)
+// ============================================
+
+function openMissionsModal() {
+    document.getElementById('missionsModal').style.display = 'flex';
+    fetchAndRenderMissions();
+}
+
+function closeMissionsModal() {
+    document.getElementById('missionsModal').style.display = 'none';
+}
+
+async function fetchAndRenderMissions() {
+    const container = document.getElementById('missionsContainer');
+    const token = localStorage.getItem('token');
+    
+    if (!token) {
+        container.innerHTML = '<div style="text-align: center; color: #aaa; padding: 20px;">Vui lòng đăng nhập để xem nhiệm vụ.</div>';
+        return;
+    }
+
+    container.innerHTML = '<div style="text-align: center; color: #aaa; padding: 20px;">Đang tải danh sách nhiệm vụ...</div>';
+
+    try {
+        const res = await fetch('/api/auth?action=missions', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+        
+        if (!data.success) {
+            container.innerHTML = `<div style="text-align: center; color: #e74c3c; padding: 20px;">Lỗi: ${data.error || 'Không thể tải nhiệm vụ'}</div>`;
+            return;
+        }
+
+        renderMissionsList(data.missions, data.checkinState);
+
+    } catch (err) {
+        console.error("Lỗi fetch missions:", err);
+        container.innerHTML = '<div style="text-align: center; color: #e74c3c; padding: 20px;">Lỗi kết nối. Vui lòng thử lại sau.</div>';
+    }
+}
+
+function renderMissionsList(missions, checkinState) {
+    const container = document.getElementById('missionsContainer');
+    let html = '<div class="mission-list">';
+
+    // 1. Điểm danh hàng ngày (Luôn ở trên cùng)
+    const checkinClass = checkinState.is_completed ? 'completed' : '';
+    const checkinText = checkinState.is_completed ? 'Đã Nhận' : 'Làm';
+    const checkinAction = checkinState.is_completed ? '' : 'onclick="doCheckinMission()"';
+    
+    html += `
+        <div class="mission-item">
+            <div class="mission-info">
+                <div class="mission-title">📅 Điểm danh hàng ngày</div>
+                <div class="mission-reward">+5 xu</div>
+            </div>
+            <div class="mission-action">
+                <button id="btnMissionCheckin" class="btn-mission ${checkinClass}" ${checkinAction}>${checkinText}</button>
+            </div>
+        </div>
+    `;
+
+    // 2. Chia missions thành các nhóm (Hot chưa làm, Thường chưa làm, Hot đã làm, Thường đã làm)
+    const pendingHot = [];
+    const pendingNormal = [];
+    const completedMissions = [];
+
+    missions.forEach(m => {
+        if (m.is_completed) {
+            completedMissions.push(m);
+        } else if (m.is_hot) {
+            pendingHot.push(m);
+        } else {
+            pendingNormal.push(m);
+        }
+    });
+
+    // 3. Render nhóm Hot chưa làm
+    pendingHot.forEach(m => {
+        html += createMissionItemHTML(m);
+    });
+
+    // 4. Render nhóm Thường chưa làm
+    pendingNormal.forEach(m => {
+        html += createMissionItemHTML(m);
+    });
+
+    // 5. Render nhóm Đã làm (Mờ đi)
+    completedMissions.forEach(m => {
+        html += createMissionItemHTML(m);
+    });
+
+    html += '</div>';
+    container.innerHTML = html;
+}
+
+function createMissionItemHTML(mission) {
+    const hotClass = mission.is_hot ? 'mission-hot' : '';
+    const hotIcon = mission.is_hot ? '🔥 ' : '';
+    const btnClass = mission.is_completed ? 'completed' : '';
+    const btnText = mission.is_completed ? 'Hoàn Thành' : 'Làm';
+    
+    // Nếu có action_url, bấm Làm sẽ mở link. Nếu không thì báo lỗi chưa code link.
+    const actionAttr = mission.is_completed ? '' : `onclick="doMission('${mission.id}', '${mission.action_url || ''}')"`;
+
+    return `
+        <div class="mission-item ${hotClass}">
+            <div class="mission-info">
+                <div class="mission-title">${hotIcon}${mission.title}</div>
+                <div class="mission-reward">+${mission.reward_xu} xu</div>
+            </div>
+            <div class="mission-action">
+                <button class="btn-mission ${btnClass}" ${actionAttr}>${btnText}</button>
+            </div>
+        </div>
+    `;
+}
+
+async function doCheckinMission() {
+    const btn = document.getElementById('btnMissionCheckin');
+    btn.disabled = true;
+    btn.innerText = "Đang xử lý...";
+    
+    await window.dailyCheckin(); // Gọi hàm cũ ở app.js
+    
+    // Đợi 1 giây rồi refresh lại danh sách để cập nhật UI popup
+    setTimeout(() => {
+        fetchAndRenderMissions();
+    }, 1000);
+}
+
+function doMission(id, url) {
+    if (url) {
+        window.open(url, '_blank');
+        // Vì hệ thống nạp tiền tự động đang chờ duyệt, tạm thời nếu user click link (ví dụ QR code) 
+        // thì chưa thể tự cộng xu ngay. Khi nào admin làm xong webhook sẽ cập nhật sau.
+    } else {
+        alert("Chưa có link hướng dẫn cho nhiệm vụ này. Liên hệ Admin.");
+    }
+}

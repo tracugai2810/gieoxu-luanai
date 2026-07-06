@@ -53,6 +53,8 @@ async function fetchAdmin(action, method = 'GET', body = null) {
 
 async function loadAdminData() {
     try {
+        loadMissions(); // Load missions asynchronously
+        
         // Load all data concurrently
         const [statsData, configData, usersData] = await Promise.all([
             fetchAdmin('stats'),
@@ -191,5 +193,81 @@ async function resetPassword(userId, displayEmail) {
         } catch (e) {
             alert("Lỗi khi đổi mật khẩu: " + e.message);
         }
+    }
+}
+
+// ========================================
+// MISSIONS MANAGEMENT
+// ========================================
+
+async function loadMissions() {
+    try {
+        const res = await fetchAdmin('get_missions', 'GET');
+        const tbody = document.getElementById('missionsTableBody');
+        tbody.innerHTML = '';
+        
+        res.data.forEach(m => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${m.title} ${m.action_url ? '<a href="'+m.action_url+'" target="_blank" style="font-size:0.8rem;color:#3498db;">[Link]</a>' : ''}</td>
+                <td style="color:#f1c40f;">+${m.reward_xu}</td>
+                <td>${m.is_hot ? '🔥' : ''}</td>
+                <td>
+                    <button class="btn" style="padding: 5px 10px; font-size: 0.8rem; background: ${m.is_active ? '#2ecc71' : '#e74c3c'};" onclick="toggleMissionActive('${m.id}', ${!m.is_active})">
+                        ${m.is_active ? 'Bật' : 'Tắt'}
+                    </button>
+                </td>
+                <td>
+                    <button class="btn" style="padding: 5px 10px; font-size: 0.8rem; background: #e74c3c;" onclick="deleteMission('${m.id}')">Xóa</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    } catch (e) {
+        console.error("Failed to load missions", e);
+    }
+}
+
+async function addMission() {
+    const title = document.getElementById('newMissionTitle').value.trim();
+    const reward = parseInt(document.getElementById('newMissionReward').value);
+    const url = document.getElementById('newMissionUrl').value.trim();
+    const isHot = document.getElementById('newMissionHot').checked;
+
+    if (!title || !reward) return alert("Vui lòng nhập tên và số xu thưởng!");
+
+    try {
+        await fetchAdmin('add_mission', 'POST', {
+            title,
+            reward_xu: reward,
+            action_url: url,
+            is_hot: isHot
+        });
+        document.getElementById('newMissionTitle').value = '';
+        document.getElementById('newMissionReward').value = '';
+        document.getElementById('newMissionUrl').value = '';
+        document.getElementById('newMissionHot').checked = false;
+        loadMissions();
+    } catch (e) {
+        alert("Lỗi: " + e.message);
+    }
+}
+
+async function toggleMissionActive(id, newState) {
+    try {
+        await fetchAdmin('update_mission', 'POST', { id, is_active: newState });
+        loadMissions();
+    } catch (e) {
+        alert("Lỗi: " + e.message);
+    }
+}
+
+async function deleteMission(id) {
+    if (!confirm("Bạn có chắc muốn xóa nhiệm vụ này? Lịch sử người dùng đã làm nhiệm vụ này cũng sẽ bị xóa.")) return;
+    try {
+        await fetchAdmin('delete_mission', 'POST', { id });
+        loadMissions();
+    } catch (e) {
+        alert("Lỗi: " + e.message);
     }
 }

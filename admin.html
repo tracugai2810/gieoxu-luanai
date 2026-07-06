@@ -90,6 +90,32 @@
         </div>
 
         <div class="card">
+            <h2>💰 Quản Lý Nhiệm Vụ Kiếm Xu</h2>
+            <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                <input type="text" id="newMissionTitle" placeholder="Tên nhiệm vụ (VD: Donate 100k)" style="flex: 2;">
+                <input type="number" id="newMissionReward" placeholder="Thưởng Xu (VD: 10)" style="flex: 1;">
+                <input type="text" id="newMissionUrl" placeholder="Link (tùy chọn)" style="flex: 2;">
+                <label style="display: flex; align-items: center; gap: 5px; cursor: pointer; color: #fff;">
+                    <input type="checkbox" id="newMissionHot"> HOT
+                </label>
+                <button class="btn" onclick="addMission()">Thêm</button>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Tên Nhiệm Vụ</th>
+                        <th>Thưởng</th>
+                        <th>HOT</th>
+                        <th>Hành Động</th>
+                    </tr>
+                </thead>
+                <tbody id="missionsTableBody">
+                    <!-- Missions here -->
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card">
             <h2>🔑 Quản Lý API Keys (Gemini)</h2>
             <p style="color:#aaa; font-size:0.9rem">Nhập tối đa 5 API Keys. Hệ thống sẽ tự xoay vòng khi hết Quota (lỗi 429).</p>
             <div id="apiKeysContainer">

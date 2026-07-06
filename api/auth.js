@@ -131,6 +131,33 @@ module.exports = async (req, res) => {
             });
         }
 
+        if (req.method === 'GET' && action === 'missions') {
+            // 1. Lấy tất cả missions active
+            let missions = await supabaseRequest(`/rest/v1/missions?is_active=eq.true&order=is_hot.desc,created_at.desc`, 'GET', null, false, { Authorization: `Bearer ${token}` });
+            if (!missions) missions = [];
+            
+            // 2. Lấy các mission_id user đã làm
+            let userMissions = await supabaseRequest(`/rest/v1/user_missions?user_id=eq.${userId}&select=mission_id`, 'GET', null, false, { Authorization: `Bearer ${token}` });
+            if (!userMissions) userMissions = [];
+            const completedIds = userMissions.map(um => um.mission_id);
+            
+            // 3. Lấy thông tin điểm danh (last_checkin)
+            const profiles = await supabaseRequest(`/rest/v1/profiles?id=eq.${userId}&select=last_checkin`, 'GET', null, false, { Authorization: `Bearer ${token}` });
+            const today = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Ho_Chi_Minh" })).toISOString().split('T')[0];
+            const hasCheckedIn = profiles && profiles.length > 0 && profiles[0].last_checkin === today;
+
+            return res.status(200).json({
+                success: true,
+                missions: missions.map(m => ({
+                    ...m,
+                    is_completed: completedIds.includes(m.id)
+                })),
+                checkinState: {
+                    is_completed: hasCheckedIn
+                }
+            });
+        }
+
         return res.status(404).json({ error: 'Action not found' });
 
     } catch (error) {
