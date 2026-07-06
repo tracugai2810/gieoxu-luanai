@@ -503,11 +503,37 @@ async function downloadAIResultImage() {
             logging: false
         });
 
-        // Tạo link tải ảnh
-        const link = document.createElement('a');
-        link.download = `Luan_Giai_Luc_Hao_${new Date().getTime()}.png`;
-        link.href = canvas.toDataURL('image/png');
-        link.click();
+        const imageDataUrl = canvas.toDataURL('image/png');
+        const filename = `Luan_Giai_Luc_Hao_${new Date().getTime()}.png`;
+        
+        var ua = navigator.userAgent || '';
+        var isInApp = /FBAN|FBAV|FB_IAB|Zalo|ZaloTheme|Instagram|Line|MicroMessenger|Snapchat|Twitter|TikTok/i.test(ua);
+        var isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
+
+        if (isInApp && typeof showInAppGuide === 'function') {
+            showInAppGuide();
+        } else if (isIOS && navigator.share && navigator.canShare) {
+            fetch(imageDataUrl)
+                .then(res => res.blob())
+                .then(blob => {
+                    const file = new File([blob], filename, { type: 'image/png' });
+                    const shareData = { files: [file] };
+                    if (navigator.canShare(shareData)) {
+                        navigator.share(shareData).catch(err => console.log('Share error', err));
+                    } else {
+                        forceDownload(imageDataUrl, filename);
+                    }
+                });
+        } else {
+            forceDownload(imageDataUrl, filename);
+        }
+
+        function forceDownload(url, name) {
+            const link = document.createElement('a');
+            link.download = name;
+            link.href = url;
+            link.click();
+        }
     } catch (error) {
         console.error("Lỗi khi tạo ảnh luận giải:", error);
         alert("Có lỗi xảy ra khi tạo ảnh. Vui lòng thử lại.");
