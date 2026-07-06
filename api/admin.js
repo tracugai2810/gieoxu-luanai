@@ -250,11 +250,15 @@ module.exports = async (req, res) => {
                 });
             }
 
-            // 3. Mark mission completed
-            await supabaseRequest('/rest/v1/user_missions', 'POST', {
-                user_id: deposit.user_id,
-                mission_id: deposit.mission_id
-            });
+            // 3. Mark mission completed (ignore if already completed)
+            try {
+                await supabaseRequest('/rest/v1/user_missions', 'POST', {
+                    user_id: deposit.user_id,
+                    mission_id: deposit.mission_id
+                });
+            } catch (e) {
+                console.log("Mission already marked completed or other error:", e.message);
+            }
 
             return res.status(200).json({ success: true });
         }
