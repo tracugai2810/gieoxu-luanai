@@ -1304,6 +1304,22 @@ function calculateShenSha(dCan, dChi, mChi) {
 // COIN TOSS INTERACTIVE FEATURE
 // ============================================
 
+function promptForQuestion() {
+    document.getElementById('questionModal').style.display = 'flex';
+    document.getElementById('preTossQuestion').focus();
+}
+
+function submitQuestionAndToss() {
+    const q = document.getElementById('preTossQuestion').value.trim();
+    if (!q) {
+        alert('Vui lòng điền câu hỏi để quẻ gieo được linh ứng và chuẩn xác nhất!');
+        return;
+    }
+    // Store question globally or hide modal and start toss
+    document.getElementById('questionModal').style.display = 'none';
+    startCoinToss();
+}
+
 let tossResults = [];
 let currentTossIndex = 1;
 
