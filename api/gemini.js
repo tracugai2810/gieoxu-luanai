@@ -30,9 +30,10 @@ async function supabaseRequest(endpoint, method = 'GET', body = null, useService
         const err = await res.text();
         throw new Error(`Supabase Error (${res.status}): ${err}`);
     }
-    // Handle 204 No Content
+    // Handle 204 No Content and empty 201 Created
     if (res.status === 204) return null;
-    return res.json();
+    const text = await res.text();
+    return text ? JSON.parse(text) : null;
 }
 
 module.exports = async (req, res) => {
@@ -298,6 +299,6 @@ Hãy luận giải theo đúng 5 phần sau, mỗi phần là một mục riêng
 
     } catch (error) {
         console.error("Gemini API Error:", error);
-        return res.status(500).json({ error: 'Internal Server Error', details: error.message });
+        return res.status(500).json({ error: error.message || 'Internal Server Error' });
     }
 };

@@ -11,7 +11,6 @@ let selectedModelId = null;
 // --- Khởi tạo & Lắng nghe ---
 document.addEventListener('DOMContentLoaded', () => {
     initAuth();
-    loadModels();
     
     // Lắng nghe sự kiện quẻ đã gieo xong từ app.js
     window.addEventListener('hexagramReady', () => {
@@ -236,66 +235,12 @@ window.onclick = function(event) {
 
 // --- AI DIVINATION LOGIC ---
 
-async function loadModels() {
-    try {
-        const res = await fetch('/api/admin?action=config'); // Tạm dùng public, sau nên có API public lấy list
-        // Để không phải tạo thêm API, ta hardcode load luôn danh sách hoặc gọi API nếu sửa admin cho phép không cần token.
-        // Wait, admin API requires token! Ta nên gọi API cấu hình public.
-        // Nhưng tạm thời ta sẽ hardcode danh sách fallback, hoặc thay vì load từ DB, lấy luôn cấu hình từ /api/gemini?
-        // Sửa nhanh: Ta sẽ tự tạo một mảng model dựa trên bảng giá đã chốt:
-        
-        availableModels = [
-            {id: "gemini-3.1-flash-lite", name: "Cơ Bản", xuCost: 5, enabled: true},
-            {id: "gemini-2.5-flash-lite", name: "Tiêu Chuẩn", xuCost: 10, enabled: true},
-            {id: "gemini-2.5-flash", name: "Chi Tiết", xuCost: 15, enabled: true},
-            {id: "gemini-3-flash", name: "Chuyên Sâu", xuCost: 20, enabled: true},
-            {id: "gemini-3.5-flash", name: "Đại Sư", xuCost: 30, enabled: true}
-        ];
-        renderModelCards();
-    } catch (e) {
-        console.error("Lỗi load models:", e);
-    }
-}
-
-function renderModelCards() {
-    const container = document.getElementById('modelCards');
-    if (!container) return;
-    
-    container.innerHTML = '';
-    
-    availableModels.forEach((m, idx) => {
-        if (!m.enabled) return;
-        
-        const isSelected = (selectedModelId === m.id) || (!selectedModelId && idx === 0);
-        if (isSelected) {
-            selectedModelId = m.id;
-            updateDivineButton();
-        }
-        
-        const card = document.createElement('div');
-        card.className = `model-card ${isSelected ? 'selected' : ''}`;
-        card.onclick = () => {
-            selectedModelId = m.id;
-            document.querySelectorAll('.model-card').forEach(c => c.classList.remove('selected'));
-            card.classList.add('selected');
-            updateDivineButton();
-        };
-        
-        card.innerHTML = `
-            <div class="model-name">✨ ${m.name}</div>
-            <div class="model-price">${m.xuCost} xu / lượt</div>
-        `;
-        container.appendChild(card);
-    });
-
-}
-
 function updateDivineButton() {
     const btn = document.getElementById('btnDivine');
     if (!btn) return;
     
-    const m = availableModels.find(x => x.id === selectedModelId);
-    if (!m) return;
+    const cost = 5;
+    selectedModelId = 'gemini-3.1-flash-lite';
     
     if (!currentUser) {
         btn.innerHTML = '🔮 Đăng Nhập Để Luận Giải';
@@ -304,13 +249,13 @@ function updateDivineButton() {
     }
     
     const costSpan = document.getElementById('divineCost');
-    if (costSpan) costSpan.textContent = m.xuCost;
+    if (costSpan) costSpan.textContent = cost;
     
-    if (currentXu < m.xuCost) {
-        btn.innerHTML = `❌ Không Đủ Xu (${m.xuCost} xu)`;
+    if (currentXu < cost) {
+        btn.innerHTML = `❌ Không Đủ Xu (${cost} xu)`;
         btn.disabled = true;
     } else {
-        btn.innerHTML = `🔮 Luận Giải (${m.xuCost} xu)`;
+        btn.innerHTML = `🔮 Luận Giải (${cost} xu)`;
         btn.disabled = false;
         btn.onclick = startAIDivination;
     }
