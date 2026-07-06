@@ -65,25 +65,12 @@
         </div>
 
         <div class="card">
-            <h2>🔑 Quản Lý API Keys (Gemini)</h2>
-            <p style="color:#aaa; font-size:0.9rem">Nhập tối đa 5 API Keys. Hệ thống sẽ tự xoay vòng khi hết Quota (lỗi 429).</p>
-            <div id="apiKeysContainer">
-                <!-- Injected via JS -->
-            </div>
-            <button class="btn" onclick="saveApiKeys()">Lưu API Keys</button>
-        </div>
-
-        <div class="card">
             <h3><span class="icon">👥</span> Quản Lý Người Dùng & Cộng Xu</h3>
             
             <div class="form-row" style="margin-bottom: 20px;">
                 <div class="form-group" style="flex:1;">
-                    <input type="text" id="manageUserEmail" placeholder="Nhập Email người dùng">
+                    <input type="text" id="searchUserEmail" placeholder="Tìm kiếm Email người dùng..." onkeyup="filterUsers()">
                 </div>
-                <div class="form-group" style="width: 150px;">
-                    <input type="number" id="manageAmount" placeholder="Số lượng xu (+/-)">
-                </div>
-                <button class="btn btn-warning" onclick="updateUserXu()">Thực Hiện</button>
             </div>
 
             <table class="data-table">
@@ -93,12 +80,22 @@
                         <th>Số Xu</th>
                         <th>Quyền</th>
                         <th>Ngày tạo</th>
+                        <th>Thao Tác</th>
                     </tr>
                 </thead>
                 <tbody id="usersTableBody">
                     <!-- Users here -->
                 </tbody>
             </table>
+        </div>
+
+        <div class="card">
+            <h2>🔑 Quản Lý API Keys (Gemini)</h2>
+            <p style="color:#aaa; font-size:0.9rem">Nhập tối đa 5 API Keys. Hệ thống sẽ tự xoay vòng khi hết Quota (lỗi 429).</p>
+            <div id="apiKeysContainer">
+                <!-- Injected via JS -->
+            </div>
+            <button class="btn" onclick="saveApiKeys()">Lưu API Keys</button>
         </div>
     </div>
 

@@ -167,7 +167,15 @@ function renderAuthForm(tab) {
             const data = await res.json();
             
             if (!data.success) {
-                errDiv.textContent = data.error || 'Có lỗi xảy ra';
+                let errorMsg = data.error || 'Có lỗi xảy ra';
+                if (errorMsg.toLowerCase().includes('rate limit')) {
+                    errorMsg = 'Hệ thống đang quá tải, bạn thao tác quá nhanh. Vui lòng thử lại sau ít phút!';
+                } else if (errorMsg.toLowerCase().includes('already registered')) {
+                    errorMsg = 'Email này đã được đăng ký!';
+                } else if (errorMsg.toLowerCase().includes('invalid login credentials')) {
+                    errorMsg = 'Email hoặc mật khẩu không chính xác!';
+                }
+                errDiv.textContent = errorMsg;
                 errDiv.style.display = 'block';
                 btn.disabled = false;
                 btn.textContent = btnText;

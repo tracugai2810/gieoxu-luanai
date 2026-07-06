@@ -80,14 +80,22 @@ async function loadAdminData() {
         
         const tbody = document.getElementById('usersTableBody');
         tbody.innerHTML = '';
-        usersData.data.forEach(u => {
+        usersData.data.forEach((u, index) => {
             const date = new Date(u.created_at).toLocaleDateString('vi-VN');
+            const email = u.email || u.id;
             tbody.innerHTML += `
                 <tr>
-                    <td style="font-weight:600">${u.email || u.id}</td>
+                    <td style="font-weight:600">${email}</td>
                     <td style="color:#f1c40f; font-weight:bold">${u.xu_balance}</td>
                     <td>${u.role}</td>
                     <td>${date}</td>
+                    <td>
+                        <div style="display:flex; gap:5px;">
+                            <input type="number" id="xu_input_${index}" style="width:70px; padding:5px; border-radius:4px; background:#1a2235; border:1px solid #333; color:#fff;" placeholder="Số xu" min="1">
+                            <button onclick="updateUserXu('${email}', 'add', ${index})" style="background:#27ae60; color:#fff; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;" title="Cộng">+</button>
+                            <button onclick="updateUserXu('${email}', 'sub', ${index})" style="background:#e74c3c; color:#fff; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;" title="Trừ">-</button>
+                        </div>
+                    </td>
                 </tr>
             `;
         });
@@ -111,22 +119,41 @@ async function saveApiKeys() {
     }
 }
 
-async function updateUserXu() {
-    const email = document.getElementById('manageUserEmail').value.trim();
-    const amountStr = document.getElementById('manageAmount').value;
+async function updateUserXu(email, action, index) {
+    const amountStr = document.getElementById(`xu_input_${index}`).value;
     const amount = parseInt(amountStr);
     
-    if (!email || isNaN(amount)) {
-        return alert("Vui lòng nhập đủ Email và số lượng xu (âm hoặc dương)!");
+    if (isNaN(amount) || amount <= 0) {
+        return alert("Vui lòng nhập số lượng xu hợp lệ (lớn hơn 0)!");
     }
     
-    if (confirm(`Bạn chắc chắn muốn cộng/trừ ${amount} xu cho user ${email}?`)) {
+    const finalAmount = action === 'add' ? amount : -amount;
+    const actionText = action === 'add' ? 'cộng' : 'trừ';
+    
+    if (confirm(`Bạn chắc chắn muốn ${actionText} ${amount} xu cho user ${email}?`)) {
         try {
-            await fetchAdmin('update_xu', 'POST', { email, amount });
+            await fetchAdmin('update_xu', 'POST', { email, amount: finalAmount });
             alert("Thành công!");
             loadAdminData(); // reload bảng
         } catch (e) {
             alert("Lỗi: " + e.message);
+        }
+    }
+}
+
+function filterUsers() {
+    const input = document.getElementById('searchUserEmail').value.toLowerCase();
+    const rows = document.getElementById('usersTableBody').getElementsByTagName('tr');
+    
+    for (let i = 0; i < rows.length; i++) {
+        const emailCell = rows[i].getElementsByTagName('td')[0];
+        if (emailCell) {
+            const txtValue = emailCell.textContent || emailCell.innerText;
+            if (txtValue.toLowerCase().indexOf(input) > -1) {
+                rows[i].style.display = "";
+            } else {
+                rows[i].style.display = "none";
+            }
         }
     }
 }
