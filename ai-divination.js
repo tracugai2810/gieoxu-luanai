@@ -290,6 +290,7 @@ function renderModelCards() {
         `;
         container.appendChild(card);
     });
+
 }
 
 function updateDivineButton() {
@@ -520,3 +521,14 @@ function renderAIResult(markdownText) {
         document.getElementById('aiResult').scrollIntoView({ behavior: 'smooth' });
     }, 100);
 }
+
+// Close dropdown when clicking outside
+window.addEventListener('click', function(e) {
+    const dropdownMenu = document.getElementById('userDropdownMenu');
+    const dropdownTrigger = document.querySelector('.dropdown-trigger');
+    if (dropdownMenu && dropdownTrigger) {
+        if (!dropdownTrigger.contains(e.target) && !dropdownMenu.contains(e.target)) {
+            dropdownMenu.classList.remove('show');
+        }
+    }
+});

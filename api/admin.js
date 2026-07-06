@@ -51,7 +51,7 @@ module.exports = async (req, res) => {
         if (!userRes.ok) return res.status(401).json({ error: 'Invalid token' });
         const user = await userRes.json();
         
-        const profiles = await supabaseRequest(`/rest/v1/profiles?id=eq.${user.id}&select=role`);
+        const profiles = await supabaseRequest(`/rest/v1/profiles?id=eq.${user.id}&select=role`, 'GET', null, false, { Authorization: `Bearer ${token}` });
         if (!profiles || profiles.length === 0 || profiles[0].role !== 'admin') {
             return res.status(403).json({ error: 'Forbidden: Admin access required' });
         }

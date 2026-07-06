@@ -88,14 +88,30 @@
                 <button id="btnLogin" class="btn-auth" onclick="showAuthModal('login')">Đăng Nhập</button>
                 <button id="btnSignup" class="btn-auth btn-primary" onclick="showAuthModal('signup')">Nhận 5 Xu Miễn Phí</button>
                 
-                <div id="userMenu" class="user-menu" style="display:none;">
-                    <span id="userName" class="user-name">User</span>
-                    <button id="btnCheckin" class="btn-checkin" style="display:none;" onclick="dailyCheckin()">🎁 Điểm danh</button>
-                    <div id="xuDisplay" class="xu-display">
-                        <span class="coin-icon">🪙</span>
-                        <span id="xuAmount">0</span> xu
+                <div id="userMenu" class="user-menu-wrapper" style="display:none;">
+                    <button class="btn-checkin pulse" id="btnCheckin" onclick="dailyCheckin()">Điểm Danh</button>
+                    
+                    <div class="user-dropdown">
+                        <div class="dropdown-trigger" onclick="document.getElementById('userDropdownMenu').classList.toggle('show')">
+                            <div class="avatar">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                            </div>
+                            <div class="user-info-short">
+                                <div class="user-name" id="userName">user@gmail.com</div>
+                                <div class="user-balance">Số dư: <strong style="color:var(--accent);"><span id="xuAmount">0</span> xu</strong></div>
+                            </div>
+                        </div>
+                        
+                        <div class="dropdown-menu" id="userDropdownMenu">
+                            <div class="dropdown-item" onclick="alert('Tính năng Nạp Tiền tự động đang phát triển. Vui lòng liên hệ Zalo Admin để nạp nhé!'); document.getElementById('userDropdownMenu').classList.remove('show');">
+                                <span style="font-size: 1.2rem;">💳</span> Nạp Tiền
+                            </div>
+                            <div class="dropdown-divider"></div>
+                            <div class="dropdown-item text-danger" onclick="logout()">
+                                <span style="font-size: 1.2rem;">🚪</span> Đăng Xuất
+                            </div>
+                        </div>
                     </div>
-                    <button class="btn-logout" onclick="logout()">Thoát</button>
                 </div>
             </div>
         </div>

@@ -1518,3 +1518,111 @@ body {
     margin-top: 20px;
     font-style: italic;
 }
+
+/* User Menu Dropdown Styles */
+.user-menu-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.user-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-trigger {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    padding: 5px 10px;
+    border-radius: 8px;
+    transition: 0.2s;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+.dropdown-trigger:hover {
+    background: rgba(255,255,255,0.1);
+}
+
+.avatar {
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg, #f1c40f, #f39c12);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #000;
+}
+
+.avatar svg {
+    width: 20px;
+    height: 20px;
+}
+
+.user-info-short {
+    display: flex;
+    flex-direction: column;
+}
+
+.user-info-short .user-name {
+    font-weight: 600;
+    font-size: 0.85rem;
+    max-width: 120px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.user-info-short .user-balance {
+    font-size: 0.75rem;
+    color: #ccc;
+}
+
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: calc(100% + 10px);
+    background: var(--card-bg);
+    min-width: 180px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    border: 1px solid rgba(255,215,0,0.2);
+    z-index: 200;
+    overflow: hidden;
+    animation: fadeIn 0.2s ease;
+}
+
+.dropdown-menu.show {
+    display: block;
+}
+
+.dropdown-item {
+    padding: 12px 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    font-weight: 500;
+    color: #eee;
+    transition: 0.2s;
+}
+
+.dropdown-item:hover {
+    background: rgba(255,215,0,0.1);
+    color: #f1c40f;
+}
+
+.dropdown-divider {
+    height: 1px;
+    background: rgba(255,255,255,0.1);
+}
+
+.text-danger:hover {
+    color: #e74c3c !important;
+    background: rgba(231, 76, 60, 0.1) !important;
+}

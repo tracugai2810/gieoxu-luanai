@@ -71,7 +71,7 @@ module.exports = async (req, res) => {
         const userId = user.id;
 
         if (req.method === 'GET' && action === 'profile') {
-            const profiles = await supabaseRequest(`/rest/v1/profiles?id=eq.${userId}&select=*`);
+            const profiles = await supabaseRequest(`/rest/v1/profiles?id=eq.${userId}&select=*`, 'GET', null, false, { Authorization: `Bearer ${token}` });
             if (!profiles || profiles.length === 0) return res.status(404).json({ error: 'Profile not found' });
             return res.status(200).json({ success: true, profile: profiles[0] });
         }
