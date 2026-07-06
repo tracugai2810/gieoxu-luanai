@@ -31,7 +31,7 @@ async function supabaseRequest(endpoint, method = 'GET', body = null, useService
 
 module.exports = async (req, res) => {
     if (req.method === 'OPTIONS') {
-        return res.status(200).set(corsHeaders).send('ok');
+        return res.status(200).send('ok');
     }
 
     const { action } = req.query;
@@ -39,12 +39,12 @@ module.exports = async (req, res) => {
     try {
         if (req.method === 'POST' && action === 'signup') {
             const { email, password } = req.body;
-            if (!email || !password) return res.status(400).set(corsHeaders).json({ error: 'Email và Password là bắt buộc' });
+            if (!email || !password) return res.status(400).json({ error: 'Email và Password là bắt buộc' });
             
             // Supabase auth API
             const result = await supabaseRequest('/auth/v1/signup', 'POST', { email, password });
             
-            return res.status(200).set(corsHeaders).json({ 
+            return res.status(200).json({ 
                 success: true, 
                 message: 'Đăng ký thành công! Bạn đã được tặng 5 xu.',
                 data: result 
@@ -54,26 +54,26 @@ module.exports = async (req, res) => {
         if (req.method === 'POST' && action === 'login') {
             const { email, password } = req.body;
             const result = await supabaseRequest('/auth/v1/token?grant_type=password', 'POST', { email, password });
-            return res.status(200).set(corsHeaders).json({ success: true, data: result });
+            return res.status(200).json({ success: true, data: result });
         }
 
         // Các action dưới đây yêu cầu Authorization header
         const authHeader = req.headers.authorization;
-        if (!authHeader) return res.status(401).set(corsHeaders).json({ error: 'Missing token' });
+        if (!authHeader) return res.status(401).json({ error: 'Missing token' });
         const token = authHeader.replace('Bearer ', '').trim();
 
         // Xác minh token & lấy user
         const userRes = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
             headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${token}` }
         });
-        if (!userRes.ok) return res.status(401).set(corsHeaders).json({ error: 'Invalid token' });
+        if (!userRes.ok) return res.status(401).json({ error: 'Invalid token' });
         const user = await userRes.json();
         const userId = user.id;
 
         if (req.method === 'GET' && action === 'profile') {
             const profiles = await supabaseRequest(`/rest/v1/profiles?id=eq.${userId}&select=*`);
-            if (!profiles || profiles.length === 0) return res.status(404).set(corsHeaders).json({ error: 'Profile not found' });
-            return res.status(200).set(corsHeaders).json({ success: true, profile: profiles[0] });
+            if (!profiles || profiles.length === 0) return res.status(404).json({ error: 'Profile not found' });
+            return res.status(200).json({ success: true, profile: profiles[0] });
         }
 
         if (req.method === 'POST' && action === 'checkin') {
@@ -85,7 +85,7 @@ module.exports = async (req, res) => {
             const todayStr = today.toISOString().split('T')[0];
 
             if (profile.last_checkin === todayStr) {
-                return res.status(400).set(corsHeaders).json({ error: 'Hôm nay bạn đã điểm danh rồi. Hãy quay lại vào ngày mai nhé!' });
+                return res.status(400).json({ error: 'Hôm nay bạn đã điểm danh rồi. Hãy quay lại vào ngày mai nhé!' });
             }
 
             if (!SUPABASE_SERVICE_KEY) throw new Error("Chưa cấu hình Service Key trên server");
@@ -105,14 +105,14 @@ module.exports = async (req, res) => {
                 description: 'Điểm danh hàng ngày'
             }, true);
 
-            return res.status(200).set(corsHeaders).json({ 
+            return res.status(200).json({ 
                 success: true, 
                 message: 'Điểm danh thành công! Bạn nhận được +5 xu.',
                 xuRemaining: newXu
             });
         }
 
-        return res.status(404).set(corsHeaders).json({ error: 'Action not found' });
+        return res.status(404).json({ error: 'Action not found' });
 
     } catch (error) {
         let errorMsg = "Internal Server Error";
@@ -123,6 +123,6 @@ module.exports = async (req, res) => {
         } catch(e) {
             errorMsg = error.message;
         }
-        return res.status(500).set(corsHeaders).json({ error: errorMsg });
+        return res.status(500).json({ error: errorMsg });
     }
 };

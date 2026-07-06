@@ -38,18 +38,18 @@ async function supabaseRequest(endpoint, method = 'GET', body = null, useService
 module.exports = async (req, res) => {
     // Handle CORS preflight
     if (req.method === 'OPTIONS') {
-        return res.status(200).set(corsHeaders).send('ok');
+        return res.status(200).send('ok');
     }
 
     if (req.method !== 'POST') {
-        return res.status(405).set(corsHeaders).json({ error: 'Method not allowed' });
+        return res.status(405).json({ error: 'Method not allowed' });
     }
 
     try {
         // 1. Xác thực User qua token
         const authHeader = req.headers.authorization;
         if (!authHeader) {
-            return res.status(401).set(corsHeaders).json({ error: 'Missing Authorization header' });
+            return res.status(401).json({ error: 'Missing Authorization header' });
         }
 
         const token = authHeader.replace('Bearer ', '').trim();
@@ -62,21 +62,21 @@ module.exports = async (req, res) => {
             if (!userRes.ok) throw new Error('Invalid token');
             user = await userRes.json();
         } catch (e) {
-            return res.status(401).set(corsHeaders).json({ error: 'Unauthorized: Invalid token' });
+            return res.status(401).json({ error: 'Unauthorized: Invalid token' });
         }
 
         const userId = user.id;
         const { hexagramText, question, modelId, idempotencyKey } = req.body;
 
         if (!hexagramText || !modelId || !idempotencyKey) {
-            return res.status(400).set(corsHeaders).json({ error: 'Missing required fields' });
+            return res.status(400).json({ error: 'Missing required fields' });
         }
 
         // 2. Kiểm tra Idempotency (Chống gọi 2 lần)
         const historyRes = await supabaseRequest(`/rest/v1/divination_history?idempotency_key=eq.${idempotencyKey}&select=*`);
         if (historyRes && historyRes.length > 0) {
             // Đã luận rồi, trả về kết quả cũ luôn
-            return res.status(200).set(corsHeaders).json({
+            return res.status(200).json({
                 success: true,
                 result: historyRes[0].ai_response,
                 xuCost: historyRes[0].xu_cost,
@@ -95,15 +95,15 @@ module.exports = async (req, res) => {
         }
 
         if (apiKeys.length === 0) {
-            return res.status(500).set(corsHeaders).json({ error: 'Hệ thống chưa cấu hình API Key' });
+            return res.status(500).json({ error: 'Hệ thống chưa cấu hình API Key' });
         }
 
         const modelConfig = modelsConfig.find(m => m.id === modelId);
         if (!modelConfig) {
-            return res.status(400).set(corsHeaders).json({ error: 'Model không tồn tại' });
+            return res.status(400).json({ error: 'Model không tồn tại' });
         }
         if (!modelConfig.enabled) {
-            return res.status(400).set(corsHeaders).json({ error: 'Model này đang tạm khóa' });
+            return res.status(400).json({ error: 'Model này đang tạm khóa' });
         }
 
         const cost = modelConfig.xuCost;
@@ -112,12 +112,12 @@ module.exports = async (req, res) => {
         // Lấy xu hiện tại
         const profileRes = await supabaseRequest(`/rest/v1/profiles?id=eq.${userId}&select=xu_balance`);
         if (!profileRes || profileRes.length === 0) {
-            return res.status(404).set(corsHeaders).json({ error: 'User profile not found' });
+            return res.status(404).json({ error: 'User profile not found' });
         }
         
         let currentXu = profileRes[0].xu_balance;
         if (currentXu < cost) {
-            return res.status(403).set(corsHeaders).json({ error: `Không đủ xu. Bạn cần ${cost} xu, hiện có ${currentXu} xu.` });
+            return res.status(403).json({ error: `Không đủ xu. Bạn cần ${cost} xu, hiện có ${currentXu} xu.` });
         }
 
         // Trừ xu
@@ -256,7 +256,7 @@ Hãy luận giải theo đúng 5 phần sau, mỗi phần là một mục riêng
                 xu_balance: currentXu // Trả lại số xu ban đầu
             });
             
-            return res.status(500).set(corsHeaders).json({ 
+            return res.status(500).json({ 
                 error: lastError === 'Quota exceeded' 
                     ? 'Model này tạm thời hết lượt (Quota exceeded). Vui lòng chọn model khác!'
                     : `Lỗi AI: ${lastError}. Đã hoàn lại xu.` 
@@ -281,7 +281,7 @@ Hãy luận giải theo đúng 5 phần sau, mỗi phần là một mục riêng
             description: `Luận quẻ bằng model ${modelId}`
         });
 
-        return res.status(200).set(corsHeaders).json({
+        return res.status(200).json({
             success: true,
             result: aiResultText,
             xuCost: cost,
@@ -290,6 +290,6 @@ Hãy luận giải theo đúng 5 phần sau, mỗi phần là một mục riêng
 
     } catch (error) {
         console.error("Gemini API Error:", error);
-        return res.status(500).set(corsHeaders).json({ error: 'Internal Server Error', details: error.message });
+        return res.status(500).json({ error: 'Internal Server Error', details: error.message });
     }
 };

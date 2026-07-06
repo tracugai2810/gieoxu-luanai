@@ -31,16 +31,16 @@ async function supabaseRequest(endpoint, method = 'GET', body = null, useService
 
 module.exports = async (req, res) => {
     if (req.method === 'OPTIONS') {
-        return res.status(200).set(corsHeaders).send('ok');
+        return res.status(200).send('ok');
     }
 
     if (!SUPABASE_SERVICE_KEY) {
-        return res.status(500).set(corsHeaders).json({ error: 'Chưa cấu hình Service Key trên Server' });
+        return res.status(500).json({ error: 'Chưa cấu hình Service Key trên Server' });
     }
 
     const { action } = req.query;
     const authHeader = req.headers.authorization;
-    if (!authHeader) return res.status(401).set(corsHeaders).json({ error: 'Missing token' });
+    if (!authHeader) return res.status(401).json({ error: 'Missing token' });
     const token = authHeader.replace('Bearer ', '').trim();
 
     try {
@@ -48,12 +48,12 @@ module.exports = async (req, res) => {
         const userRes = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
             headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${token}` }
         });
-        if (!userRes.ok) return res.status(401).set(corsHeaders).json({ error: 'Invalid token' });
+        if (!userRes.ok) return res.status(401).json({ error: 'Invalid token' });
         const user = await userRes.json();
         
         const profiles = await supabaseRequest(`/rest/v1/profiles?id=eq.${user.id}&select=role`);
         if (!profiles || profiles.length === 0 || profiles[0].role !== 'admin') {
-            return res.status(403).set(corsHeaders).json({ error: 'Forbidden: Admin access required' });
+            return res.status(403).json({ error: 'Forbidden: Admin access required' });
         }
 
         // 2. Handle Admin Actions
@@ -72,7 +72,7 @@ module.exports = async (req, res) => {
             // Tính tổng xu tiêu thụ hôm nay
             const totalXuToday = usageRes.reduce((sum, item) => sum + item.xu_cost, 0);
 
-            return res.status(200).set(corsHeaders).json({
+            return res.status(200).json({
                 success: true,
                 stats: {
                     totalUsers: usersRes.length || 0, // In full app use count headers, simplify here
@@ -84,31 +84,31 @@ module.exports = async (req, res) => {
 
         if (req.method === 'GET' && action === 'config') {
             const config = await supabaseRequest('/rest/v1/ai_config?select=*');
-            return res.status(200).set(corsHeaders).json({ success: true, data: config });
+            return res.status(200).json({ success: true, data: config });
         }
 
         if (req.method === 'POST' && action === 'config') {
             const { key, value } = req.body; // key: 'models' | 'api_keys'
-            if (!key || !value) return res.status(400).set(corsHeaders).json({ error: 'Invalid body' });
+            if (!key || !value) return res.status(400).json({ error: 'Invalid body' });
             
             await supabaseRequest(`/rest/v1/ai_config?config_key=eq.${key}`, 'PATCH', {
                 config_value: value,
                 updated_at: new Date().toISOString()
             });
-            return res.status(200).set(corsHeaders).json({ success: true, message: 'Saved successfully' });
+            return res.status(200).json({ success: true, message: 'Saved successfully' });
         }
 
         if (req.method === 'GET' && action === 'users') {
             const usersList = await supabaseRequest('/rest/v1/profiles?select=*&order=created_at.desc');
-            return res.status(200).set(corsHeaders).json({ success: true, data: usersList });
+            return res.status(200).json({ success: true, data: usersList });
         }
 
         if (req.method === 'POST' && action === 'update_xu') {
             const { userId, amount, description } = req.body; // amount can be positive or negative
-            if (!userId || amount === undefined) return res.status(400).set(corsHeaders).json({ error: 'Invalid body' });
+            if (!userId || amount === undefined) return res.status(400).json({ error: 'Invalid body' });
 
             const targetProfile = await supabaseRequest(`/rest/v1/profiles?id=eq.${userId}&select=xu_balance`);
-            if (!targetProfile || targetProfile.length === 0) return res.status(404).set(corsHeaders).json({ error: 'User not found' });
+            if (!targetProfile || targetProfile.length === 0) return res.status(404).json({ error: 'User not found' });
 
             const newXu = targetProfile[0].xu_balance + amount;
             
@@ -122,13 +122,13 @@ module.exports = async (req, res) => {
                 description: description || 'Admin điều chỉnh xu'
             });
 
-            return res.status(200).set(corsHeaders).json({ success: true, newXu });
+            return res.status(200).json({ success: true, newXu });
         }
 
-        return res.status(404).set(corsHeaders).json({ error: 'Action not found' });
+        return res.status(404).json({ error: 'Action not found' });
 
     } catch (error) {
         console.error("Admin API Error:", error);
-        return res.status(500).set(corsHeaders).json({ error: error.message });
+        return res.status(500).json({ error: error.message });
     }
 };
