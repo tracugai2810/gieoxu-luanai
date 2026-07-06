@@ -1306,7 +1306,7 @@ function calculateShenSha(dCan, dChi, mChi) {
 // ============================================
 
 function promptForQuestion() {
-    document.getElementById('questionModal').classList.add('active');
+    document.getElementById('questionModal').style.display = 'flex';
     document.getElementById('preTossQuestion').focus();
 }
 
@@ -1317,7 +1317,7 @@ function submitQuestionAndToss() {
         return;
     }
     // Store question globally or hide modal and start toss
-    document.getElementById('questionModal').classList.remove('active');
+    document.getElementById('questionModal').style.display = 'none';
     startCoinToss();
 }
 
