@@ -90,9 +90,17 @@ module.exports = async (req, res) => {
         let apiKeys = [];
         
         for (const item of configRes) {
-            if (item.config_key === 'models') modelsConfig = item.config_value;
             if (item.config_key === 'api_keys') apiKeys = item.config_value.filter(k => k && k.trim().length > 10);
         }
+
+        // Hardcode models config to ensure consistency with frontend
+        modelsConfig = [
+            {id: "gemini-3.1-flash-lite", name: "Cơ Bản", xuCost: 5, enabled: true},
+            {id: "gemini-2.5-flash-lite", name: "Tiêu Chuẩn", xuCost: 10, enabled: true},
+            {id: "gemini-2.5-flash", name: "Chi Tiết", xuCost: 15, enabled: true},
+            {id: "gemini-3-flash", name: "Chuyên Sâu", xuCost: 20, enabled: true},
+            {id: "gemini-3.5-flash", name: "Đại Sư", xuCost: 30, enabled: true}
+        ];
 
         if (apiKeys.length === 0) {
             return res.status(500).json({ error: 'Hệ thống chưa cấu hình API Key' });
