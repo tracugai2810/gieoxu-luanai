@@ -1598,6 +1598,8 @@ function renderMissionsList(missions, checkinState) {
     const completedMissions = [];
 
     missions.forEach(m => {
+        if (m.action_url && (m.action_url.toLowerCase().endsWith('.jpg') || m.action_url.toLowerCase().endsWith('.png'))) { m.is_completed = false; }
+
         if (m.is_completed) {
             completedMissions.push(m);
         } else if (m.is_hot) {
@@ -1725,6 +1727,7 @@ async function confirmDonate() {
         btn.disabled = false;
     }
 }
+
 
 
 
