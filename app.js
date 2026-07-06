@@ -1638,10 +1638,10 @@ function doMission(id, url) {
             document.getElementById('donateQrImage').src = url;
             
             // Lấy email user từ giao diện
-            const emailElem = document.getElementById('authDropdownTrigger');
+            const emailElem = document.getElementById('userName');
             let emailText = "Email_Của_Bạn";
-            if (emailElem && emailElem.innerText.includes('@')) {
-                emailText = emailElem.innerText.split(' |')[0].trim();
+            if (emailElem && emailElem.innerText) {
+                emailText = emailElem.innerText.trim();
             }
             document.getElementById('donateUserEmail').innerText = emailText;
             
