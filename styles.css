@@ -1045,6 +1045,7 @@ body {
     }
     .auth-right-centered {
         gap: 8px;
+        align-items: center;
         flex-wrap: wrap;
         justify-content: center;
     }
@@ -1827,4 +1828,7 @@ body {
 /* --- BUTTON ACTIVE STATES --- */
 button:active, .btn:active, .btn-auth:active, .btn-mission:active, .auth-tab:active { transform: scale(0.96); transition: transform 0.1s; }
 button, .btn { min-height: 44px; /* Mobile touch target */ }
+
+
+.btn-zalo { background: #0068FF !important; color: #fff !important; border-color: #0068FF !important; } .btn-zalo:hover { background: #0056d6 !important; }
 

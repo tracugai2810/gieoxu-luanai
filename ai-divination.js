@@ -76,7 +76,8 @@ function updateAuthUI(user) {
     const checkinBtn = document.getElementById('btnCheckin');
 
     if (user) {
-        document.getElementById('btnSignup').style.display = 'none';
+        if (document.getElementById('btnSignup')) document.getElementById('btnSignup').style.display = 'none';
+        if (document.getElementById('btnZaloAuth')) document.getElementById('btnZaloAuth').style.display = 'none';
         document.getElementById('btnLogin').style.display = 'none';
         document.getElementById('userMenu').style.display = 'flex';
         
@@ -101,9 +102,11 @@ function updateAuthUI(user) {
             checkinBtn.style.display = 'none';
         }
     } else {
-        btnLogin.style.display = 'inline-block';
-        btnSignup.style.display = 'inline-block';
-        userMenu.style.display = 'none';
+        if (btnLogin) btnLogin.style.display = 'inline-block';
+        if (btnSignup) btnSignup.style.display = 'inline-block';
+        const btnZaloAuth = document.getElementById('btnZaloAuth');
+        if (btnZaloAuth) btnZaloAuth.style.display = 'inline-flex';
+        if (userMenu) userMenu.style.display = 'none';
         if (checkinBtn) checkinBtn.style.display = 'none';
         updateDivineButton();
     }
@@ -587,3 +590,4 @@ window.addEventListener('click', function(e) {
         }
     }
 });
+
