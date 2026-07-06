@@ -45,8 +45,12 @@ module.exports = async (req, res) => {
             email = email.trim();
             if (!email.includes('@')) email = `${email}@gieoque.id.vn`;
             
+            // Forward client IP to prevent Vercel IP from being rate limited
+            const clientIp = req.headers['x-forwarded-for'] || req.socket?.remoteAddress || '';
+            const customHeaders = clientIp ? { 'x-forwarded-for': clientIp } : {};
+            
             // Supabase auth API
-            const result = await supabaseRequest('/auth/v1/signup', 'POST', { email, password });
+            const result = await supabaseRequest('/auth/v1/signup', 'POST', { email, password }, false, customHeaders);
             
             return res.status(200).json({ 
                 success: true, 
@@ -62,7 +66,10 @@ module.exports = async (req, res) => {
             email = email.trim();
             if (!email.includes('@')) email = `${email}@gieoque.id.vn`;
 
-            const result = await supabaseRequest('/auth/v1/token?grant_type=password', 'POST', { email, password });
+            const clientIp = req.headers['x-forwarded-for'] || req.socket?.remoteAddress || '';
+            const customHeaders = clientIp ? { 'x-forwarded-for': clientIp } : {};
+
+            const result = await supabaseRequest('/auth/v1/token?grant_type=password', 'POST', { email, password }, false, customHeaders);
             return res.status(200).json({ success: true, data: result });
         }
 
