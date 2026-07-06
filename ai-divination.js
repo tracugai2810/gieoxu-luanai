@@ -430,12 +430,12 @@ function renderAIResult(markdownText) {
         const nextStepId = steps[idx+1] ? steps[idx+1].id : "KHONG_CO_BUOC_NAY";
         
         // Regex: tìm ## BƯỚC 1 ... cho tới ## BƯỚC 2 hoặc hết chuỗi
-        const regex = new RegExp(`(##\\s*${step.id}.*?)(?=(##\\s*BƯỚC \\d+|$))`, 'i');
+        const regex = new RegExp(`(##\\s*${step.id}[\\s\\S]*?)(?=(##\\s*BƯỚC \\d+|$))`, 'i');
         const match = currentHtml.match(regex);
         
         let stepContent = match ? match[1] : '';
         // Dọn dẹp tiêu đề khỏi nội dung
-        stepContent = stepContent.replace(new RegExp(`##\\s*${step.id}.*?(<br>|<\\/p>|<p>)`, 'i'), '<p>');
+        stepContent = stepContent.replace(new RegExp(`##\\s*${step.id}[\\s\\S]*?(<br>|<\\/p>|<p>|\\n)`, 'i'), '<p>');
         
         if (stepContent.trim() !== '') {
             const stepDiv = document.createElement('div');
