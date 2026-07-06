@@ -26,7 +26,8 @@ async function supabaseRequest(endpoint, method = 'GET', body = null, useService
         throw new Error(err);
     }
     if (res.status === 204) return null;
-    return res.json();
+    const text = await res.text();
+    return text ? JSON.parse(text) : null;
 }
 
 module.exports = async (req, res) => {

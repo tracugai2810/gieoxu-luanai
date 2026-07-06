@@ -26,7 +26,8 @@ async function supabaseRequest(endpoint, method = 'GET', body = null, useService
         throw new Error(err);
     }
     if (res.status === 204) return null;
-    return res.json();
+    const text = await res.text();
+    return text ? JSON.parse(text) : null;
 }
 
 module.exports = async (req, res) => {
@@ -73,7 +74,9 @@ module.exports = async (req, res) => {
         if (req.method === 'GET' && action === 'profile') {
             const profiles = await supabaseRequest(`/rest/v1/profiles?id=eq.${userId}&select=*`, 'GET', null, false, { Authorization: `Bearer ${token}` });
             if (!profiles || profiles.length === 0) return res.status(404).json({ error: 'Profile not found' });
-            return res.status(200).json({ success: true, profile: profiles[0] });
+            const profile = profiles[0];
+            if (!profile.email) profile.email = user.email;
+            return res.status(200).json({ success: true, profile: profile });
         }
 
         if (req.method === 'POST' && action === 'checkin') {

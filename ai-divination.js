@@ -73,7 +73,6 @@ function updateAuthUI(user) {
     const btnSignup = document.getElementById('btnSignup');
     const userMenu = document.getElementById('userMenu');
     const userName = document.getElementById('userName');
-    const xuDisplay = document.getElementById('xuDisplay');
     const xuAmount = document.getElementById('xuAmount');
     const checkinBtn = document.getElementById('btnCheckin');
 
@@ -81,9 +80,8 @@ function updateAuthUI(user) {
         btnLogin.style.display = 'none';
         btnSignup.style.display = 'none';
         userMenu.style.display = 'flex';
-        xuDisplay.style.display = 'flex';
         
-        userName.textContent = user.email.split('@')[0];
+        userName.textContent = (user.email || 'User').split('@')[0];
         xuAmount.textContent = user.xu_balance;
         
         // Cập nhật nút Luận giải nếu đang hiển thị
@@ -102,7 +100,6 @@ function updateAuthUI(user) {
         btnLogin.style.display = 'inline-block';
         btnSignup.style.display = 'inline-block';
         userMenu.style.display = 'none';
-        xuDisplay.style.display = 'none';
         if (checkinBtn) checkinBtn.style.display = 'none';
         updateDivineButton();
     }
@@ -248,11 +245,11 @@ async function loadModels() {
         // Sửa nhanh: Ta sẽ tự tạo một mảng model dựa trên bảng giá đã chốt:
         
         availableModels = [
-            {id: "gemini-2.0-flash-lite", name: "Gemini 3.1 Flash Lite", xuCost: 5, enabled: true},
-            {id: "gemini-1.5-flash-lite-preview-06-17", name: "Gemini 2.5 Flash Lite", xuCost: 10, enabled: true},
-            {id: "gemini-2.0-flash", name: "Gemini 3.5 Flash", xuCost: 10, enabled: true},
-            {id: "gemini-1.5-flash-preview-05-20", name: "Gemini 3 Flash", xuCost: 15, enabled: true},
-            {id: "gemini-1.5-flash", name: "Gemini 2.5 Flash", xuCost: 20, enabled: true}
+            {id: "gemini-1.5-flash-lite-preview-06-17", name: "Cơ Bản (G. 2.5 Lite)", xuCost: 5, enabled: true},
+            {id: "gemini-2.0-flash-lite", name: "Tiêu Chuẩn (G. 3.1 Lite)", xuCost: 10, enabled: true},
+            {id: "gemini-1.5-flash", name: "Chi Tiết (G. 2.5 Flash)", xuCost: 15, enabled: true},
+            {id: "gemini-1.5-flash-preview-05-20", name: "Chuyên Sâu (G. 3 Flash)", xuCost: 20, enabled: true},
+            {id: "gemini-2.0-flash", name: "Đại Sư (G. 3.5 Flash)", xuCost: 30, enabled: true}
         ];
         renderModelCards();
     } catch (e) {
