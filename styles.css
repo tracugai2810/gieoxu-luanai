@@ -1137,7 +1137,7 @@ body {
 
 .auth-bar {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
     padding: 10px 20px;
     background: rgba(12, 18, 34, 0.9);
@@ -1161,14 +1161,41 @@ body {
     background: transparent;
     border: 1px solid var(--accent);
     color: var(--accent);
-    padding: 6px 12px;
-    border-radius: 6px;
+    padding: 10px 18px;
+    border-radius: 8px;
     cursor: pointer;
-    font-size: 0.85rem;
+    font-size: 1rem;
     font-weight: 600;
     transition: 0.2s;
-    margin-left: 8px;
 }
+
+.auth-right-centered {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    width: 100%;
+}
+
+.btn-auto-divine {
+    background: linear-gradient(135deg, #d97706, #b45309);
+    border: 1px solid #f59e0b;
+    color: #fff;
+    padding: 14px 20px;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+}
+
+.btn-auto-divine:hover {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    box-shadow: 0 4px 12px rgba(217,119,6,0.4);
+}
+
 
 .btn-auth:hover {
     background: rgba(255, 215, 0, 0.1);

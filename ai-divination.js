@@ -249,26 +249,27 @@ window.onclick = function(event) {
 // --- AI DIVINATION LOGIC ---
 
 function updateDivineButton() {
-    const btn = document.getElementById('btnDivine');
-    if (!btn) return;
+    const btn = document.getElementById('btnAutoDivine');
+    const textSpan = document.getElementById('btnAutoDivineText');
+    if (!btn || !textSpan) return;
+    
+    // Ensure button is visible when this runs
+    btn.style.display = 'flex';
     
     const cost = 5;
     selectedModelId = 'gemini-3.1-flash-lite';
     
     if (!currentUser) {
-        btn.innerHTML = '🔮 Đăng Nhập Để Luận Giải';
+        textSpan.innerHTML = 'Đăng nhập để luận giải tự động';
         btn.onclick = () => showAuthModal('login');
         return;
     }
     
-    const costSpan = document.getElementById('divineCost');
-    if (costSpan) costSpan.textContent = cost;
-    
     if (currentXu < cost) {
-        btn.innerHTML = `❌ Không Đủ Xu (${cost} xu)`;
+        textSpan.innerHTML = `Không Đủ Xu (${cost} xu)`;
         btn.disabled = true;
     } else {
-        btn.innerHTML = `🔮 Luận Giải (${cost} xu)`;
+        textSpan.innerHTML = `Luận Giải Tự Động (${cost} xu)`;
         btn.disabled = false;
         btn.onclick = startAIDivination;
     }
@@ -356,16 +357,15 @@ async function startAIDivination() {
         return;
     }
     
-    const question = document.getElementById('aiQuestion').value.trim();
+    const question = document.getElementById('preTossQuestion').value.trim();
     if (!question) {
-        alert("Vui lòng nhập câu hỏi của bạn để AI luận giải chính xác nhất!");
-        document.getElementById('aiQuestion').focus();
+        alert("Vui lòng nhập câu hỏi của bạn để quá trình luận giải chính xác nhất!");
         return;
     }
     
     // Disable button & show loading
-    const btn = document.getElementById('btnDivine');
-    btn.disabled = true;
+    const btn = document.getElementById('btnAutoDivine');
+    if (btn) btn.disabled = true;
     document.getElementById('aiLoading').style.display = 'flex';
     document.getElementById('aiResult').style.display = 'none';
     
@@ -403,9 +403,12 @@ async function startAIDivination() {
                 document.getElementById('xuAmount').textContent = currentXu;
             }
             
-            // Cập nhật badge model đã dùng
-            const badge = document.getElementById('aiModelBadge');
-            if (badge) badge.textContent = "Gieo Quẻ AI";
+            // Cập nhật badge model đã dùng (đã xóa badge trên UI nên không cần thiết)
+            // const badge = document.getElementById('aiModelBadge');
+            // if (badge) badge.textContent = "Luận Giải Tự Động";
+            
+            // Show result
+            document.getElementById('aiResult').style.display = 'block';
         }
     } catch (e) {
         console.error("Call AI Error:", e);

@@ -696,6 +696,7 @@ function executeCapture(target, captureArea) {
         // Hide loading, show result
         document.getElementById('loading-overlay').classList.remove('visible');
         document.getElementById('resultSection').classList.add('visible');
+        if (typeof updateDivineButton === 'function') updateDivineButton();
 
         // Scroll to download button
         setTimeout(() => {
@@ -1304,6 +1305,22 @@ function calculateShenSha(dCan, dChi, mChi) {
 // COIN TOSS INTERACTIVE FEATURE
 // ============================================
 
+function promptForQuestion() {
+    document.getElementById('questionModal').classList.add('active');
+    document.getElementById('preTossQuestion').focus();
+}
+
+function submitQuestionAndToss() {
+    const q = document.getElementById('preTossQuestion').value.trim();
+    if (!q) {
+        alert('Vui lòng điền câu hỏi để quẻ gieo được linh ứng và chuẩn xác nhất!');
+        return;
+    }
+    // Store question globally or hide modal and start toss
+    document.getElementById('questionModal').classList.remove('active');
+    startCoinToss();
+}
+
 let tossResults = [];
 let currentTossIndex = 1;
 
@@ -1443,8 +1460,11 @@ function performToss() {
             document.getElementById('toss-status').innerText = `Hào ${currentTossIndex} / 6`;
         } else {
             tossBtn.style.display = 'none';
-            document.getElementById('finish-toss-btn').style.display = 'block';
             document.getElementById('toss-status').innerText = 'Đã gieo xong 6 hào!';
+            // Auto finish toss after a short delay for user to see the last line
+            setTimeout(() => {
+                finishTossSequence();
+            }, 1000);
         }
 
     }, 2000);

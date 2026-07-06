@@ -84,10 +84,7 @@
     <div class="app-container">
         <!-- Auth Bar -->
         <div id="authBar" class="auth-bar">
-            <div class="auth-left">
-                <span id="aiModelBadge" class="badge-ai">AI Chu Thần Bân</span>
-            </div>
-            <div class="auth-right">
+            <div class="auth-right auth-right-centered">
                 <button id="btnLogin" class="btn-auth" onclick="showAuthModal('login')">Đăng Nhập</button>
                 <button id="btnSignup" class="btn-auth btn-primary" onclick="showAuthModal('signup')">Nhận 5 Xu Miễn Phí</button>
                 
@@ -127,7 +124,7 @@
 
             <!-- Instructions -->
             <div class="instructions-card">
-                <p><strong>Hướng dẫn:</strong> Tập trung suy nghĩ vào vấn đề bạn muốn hỏi, rồi bấm <em>Gieo Xu</em>. Tung xu 6 lần (từ Hào 1 đến Hào 6), bấm <em>Hoàn Tất</em> để xem kết quả.</p>
+                <p><strong>Hướng dẫn:</strong> Tập trung suy nghĩ vào vấn đề bạn muốn hỏi, rồi bấm <em>Gieo Xu Miễn Phí</em>. Tung xu 6 lần (từ Hào 1 đến Hào 6) để xem kết quả.</p>
             </div>
 
             <!-- Date picker -->
@@ -137,9 +134,9 @@
             </div>
 
             <!-- Main CTA -->
-            <button class="btn-main-cta" id="btn-gieo-xu" onclick="startCoinToss()">
+            <button class="btn-main-cta" id="btn-gieo-xu" onclick="promptForQuestion()">
                 <img src="duong.png" alt="Đồng xu gieo quẻ Lục Hào" class="cta-coin-icon">
-                <span>Gieo Xu</span>
+                <span>Gieo Xu Miễn Phí</span>
             </button>
 
             <!-- Hidden form elements for divination logic -->
@@ -159,42 +156,24 @@
                         <span class="hint-mobile">💡 Bấm nút [Tải Ảnh Quẻ] hoặc nhấn giữ vào ảnh để lưu.</span>
                     </div>
 
-                    <div class="action-buttons">
+                    <div class="action-buttons" style="display: flex; flex-direction: column; gap: 10px;">
                         <button class="btn btn-download" id="downloadBtn" onclick="downloadImage()">
                             <span class="btn-icon">📸</span>
                             Tải Ảnh Quẻ
                         </button>
-                    </div>
-                </div>
-            </section>
-
-            <!-- AI Divination Section -->
-            <section class="ai-section" id="aiSection" style="display: none;">
-                <div class="ai-card">
-                    <div class="ai-header">
-                        <h2>🤖 AI Luận Quẻ Chu Thần Bân</h2>
-                        <span class="ai-badge-pro">PRO</span>
-                    </div>
-                    <p class="ai-description">AI được huấn luyện độc quyền theo bộ kiến thức Lục Hào của Chu Thần Bân, đảm bảo luận giải chuyên sâu và chính xác.</p>
-                    
-                    <div class="ai-input-group">
-                        <label for="aiQuestion">Câu hỏi của bạn (càng chi tiết AI luận càng chuẩn):</label>
-                        <textarea id="aiQuestion" placeholder="Ví dụ: Tôi muốn hỏi về công việc sắp tới có thuận lợi không? Tôi có nên chuyển việc vào tháng này?"></textarea>
-                    </div>
-
-
-                    <div class="ai-action">
-                        <button id="btnDivine" class="btn-ai-divine" onclick="startAIDivination()">
-                            🔮 Luận Giải (<span id="divineCost">5</span> xu)
+                        <button class="btn btn-auto-divine" id="btnAutoDivine" onclick="startAIDivination()" style="display:none; width: 100%; justify-content: center;">
+                            <span class="btn-icon">🔮</span>
+                            <span id="btnAutoDivineText">Luận Giải Tự Động (5xu)</span>
                         </button>
                     </div>
 
-                    <div id="aiLoading" class="ai-loading" style="display:none;">
-                    <div class="spinner"></div>
-                    <p style="margin-top: 15px; font-weight: 500; color: var(--accent);">Đang luận giải, bạn vui lòng đợi chút..</p>
-                </div>
+                    <!-- Divination Result Loading & Display -->
+                    <div id="aiLoading" class="ai-loading" style="display:none; margin-top: 20px;">
+                        <div class="spinner"></div>
+                        <p style="margin-top: 15px; font-weight: 500; color: var(--accent);">Đang luận giải, bạn vui lòng đợi chút..</p>
+                    </div>
 
-                    <div id="aiResult" class="ai-result-container" style="display:none;">
+                    <div id="aiResult" class="ai-result-container" style="display:none; margin-top: 20px;">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                             <h3 style="margin:0;">✨ Kết Quả Luận Giải</h3>
                             <button class="btn-download-img" onclick="downloadAIResultImage()" style="background: rgba(255,215,0,0.1); border: 1px solid #f1c40f; color: #f1c40f; padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 14px; display: flex; align-items: center; gap: 5px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> Lưu Ảnh</button>
@@ -203,9 +182,10 @@
                             <!-- Steps will be rendered here -->
                         </div>
                         <div class="ai-disclaimer">
-                            *Lưu ý: Kết quả từ AI chỉ mang tính chất tham khảo.
+                            *Lưu ý: Kết quả luận giải chỉ mang tính chất tham khảo.
                         </div>
                     </div>
+
                 </div>
             </section>
         </main>
@@ -281,10 +261,6 @@
                     <button id="toss-btn" class="btn-toss" onclick="performToss()">
                         Gieo Hào 1
                     </button>
-                    <button id="finish-toss-btn" class="btn-finish" onclick="finishTossSequence()"
-                        style="display: none;">
-                        ✨ Hoàn Tất & Xem Quẻ
-                    </button>
 
                     <!-- Hexagram Building Up -->
                     <div class="hex-building" id="toss-results-list">
@@ -308,6 +284,23 @@
             <form id="authForm" class="auth-form">
                 <!-- Form fields will be injected by JS -->
             </form>
+        </div>
+    </div>
+
+    <!-- Question Modal before Toss -->
+    <div id="questionModal" class="auth-modal">
+        <div class="auth-modal-content" style="max-width: 400px;">
+            <span class="auth-close" onclick="document.getElementById('questionModal').classList.remove('active')">&times;</span>
+            <h3 style="margin-bottom: 15px; text-align: center; color: var(--accent-light);">Nhập câu hỏi của bạn</h3>
+            <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 15px; text-align: center;">
+                Câu hỏi càng chi tiết, kết quả luận giải càng chuẩn xác.
+            </p>
+            <div class="ai-input-group" style="margin-bottom: 20px;">
+                <textarea id="preTossQuestion" placeholder="Ví dụ: Tôi muốn hỏi về công việc sắp tới có thuận lợi không? Tôi có nên chuyển việc vào tháng này?" style="width: 100%; min-height: 100px; padding: 12px; background: var(--bg-main); border: 2px solid var(--border-color); border-radius: 8px; color: #fff; font-family: inherit; resize: vertical;"></textarea>
+            </div>
+            <button class="btn-main-cta" onclick="submitQuestionAndToss()" style="padding: 14px; font-size: 1.1rem;">
+                Bắt Đầu Gieo Xu
+            </button>
         </div>
     </div>
 
