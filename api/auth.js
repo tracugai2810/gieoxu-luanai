@@ -46,7 +46,7 @@ module.exports = async (req, res) => {
             
             return res.status(200).json({ 
                 success: true, 
-                message: 'Đăng ký thành công! Bạn đã được tặng 5 xu.',
+                message: 'Đăng ký thành công! Vui lòng kiểm tra Email (cả mục Spam/Thư rác) để xác nhận tài khoản trước khi đăng nhập nhé.',
                 data: result 
             });
         }
