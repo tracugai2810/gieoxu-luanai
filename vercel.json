@@ -1,6 +1,24 @@
 {
   "cleanUrls": true,
+  "rewrites": [
+    { "source": "/api/gemini", "destination": "/api/gemini.js" },
+    { "source": "/api/auth", "destination": "/api/auth.js" },
+    { "source": "/api/admin", "destination": "/api/admin.js" }
+  ],
+  "functions": {
+    "api/gemini.js": { "maxDuration": 60 },
+    "api/auth.js": { "maxDuration": 15 },
+    "api/admin.js": { "maxDuration": 15 }
+  },
   "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        { "key": "Access-Control-Allow-Origin", "value": "*" },
+        { "key": "Access-Control-Allow-Methods", "value": "GET, POST, OPTIONS, PATCH" },
+        { "key": "Access-Control-Allow-Headers", "value": "Content-Type, Authorization" }
+      ]
+    },
     {
       "source": "/(.*)\\.(png|jpg|jpeg|gif|ico|webp|svg)",
       "headers": [

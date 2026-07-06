@@ -436,6 +436,10 @@ function processDivination() {
     // Calculate hexagram data
     const isMaiHoa = false;
     currentHexData = calculateHexagramData(lines, calendar, methodText, formattedDate, isMaiHoa);
+    
+    // AI Integration: Export data and dispatch event
+    window.currentHexData = currentHexData;
+    window.dispatchEvent(new Event('hexagramReady'));
 
     // Show loading
     document.getElementById('loading-overlay').classList.add('visible');

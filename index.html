@@ -79,6 +79,27 @@
     height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <!-- End Google Tag Manager (noscript) -->
     <div class="app-container">
+        <!-- Auth Bar -->
+        <div id="authBar" class="auth-bar">
+            <div class="auth-left">
+                <span id="aiModelBadge" class="badge-ai">AI Chu Thần Bân</span>
+            </div>
+            <div class="auth-right">
+                <button id="btnLogin" class="btn-auth" onclick="showAuthModal('login')">Đăng Nhập</button>
+                <button id="btnSignup" class="btn-auth btn-primary" onclick="showAuthModal('signup')">Nhận 5 Xu Miễn Phí</button>
+                
+                <div id="userMenu" class="user-menu" style="display:none;">
+                    <span id="userName" class="user-name">User</span>
+                    <button id="btnCheckin" class="btn-checkin" style="display:none;" onclick="dailyCheckin()">🎁 Điểm danh</button>
+                    <div id="xuDisplay" class="xu-display">
+                        <span class="coin-icon">🪙</span>
+                        <span id="xuAmount">0</span> xu
+                    </div>
+                    <button class="btn-logout" onclick="logout()">Thoát</button>
+                </div>
+            </div>
+        </div>
+
         <main class="main-content">
             <!-- Hero -->
             <div class="hero-section">
@@ -124,6 +145,50 @@
                             <span class="btn-icon">📸</span>
                             Tải Ảnh Quẻ
                         </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- AI Divination Section -->
+            <section class="ai-section" id="aiSection" style="display: none;">
+                <div class="ai-card">
+                    <div class="ai-header">
+                        <h2>🤖 AI Luận Quẻ Chu Thần Bân</h2>
+                        <span class="ai-badge-pro">PRO</span>
+                    </div>
+                    <p class="ai-description">AI được huấn luyện độc quyền theo bộ kiến thức Lục Hào của Chu Thần Bân, đảm bảo luận giải chuyên sâu và chính xác.</p>
+                    
+                    <div class="ai-input-group">
+                        <label for="aiQuestion">Câu hỏi của bạn (càng chi tiết AI luận càng chuẩn):</label>
+                        <textarea id="aiQuestion" placeholder="Ví dụ: Tôi muốn hỏi về công việc sắp tới có thuận lợi không? Tôi có nên chuyển việc vào tháng này?"></textarea>
+                    </div>
+
+                    <div class="ai-models">
+                        <label>Chọn Model AI:</label>
+                        <div class="model-cards" id="modelCards">
+                            <!-- Models will be rendered here -->
+                        </div>
+                    </div>
+
+                    <div class="ai-action">
+                        <button id="btnDivine" class="btn-ai-divine" onclick="startAIDivination()">
+                            🔮 Luận Giải (<span id="divineCost">5</span> xu)
+                        </button>
+                    </div>
+
+                    <div id="aiLoading" class="ai-loading" style="display:none;">
+                        <div class="ai-spinner"></div>
+                        <p>AI đang phân tích Tượng Quẻ, Ngũ Hành và Thần Sát... Vui lòng chờ trong giây lát.</p>
+                    </div>
+
+                    <div id="aiResult" class="ai-result-container" style="display:none;">
+                        <h3>✨ Kết Quả Luận Giải</h3>
+                        <div id="aiResultBody" class="ai-result-body">
+                            <!-- Steps will be rendered here -->
+                        </div>
+                        <div class="ai-disclaimer">
+                            *Lưu ý: Kết quả từ AI chỉ mang tính chất tham khảo.
+                        </div>
                     </div>
                 </div>
             </section>
@@ -243,7 +308,22 @@
         </details>
     </section>
 
+    <!-- Auth Modal -->
+    <div id="authModal" class="auth-modal">
+        <div class="auth-modal-content">
+            <span class="auth-close" onclick="hideAuthModal()">&times;</span>
+            <div class="auth-tabs">
+                <div class="auth-tab active" data-tab="login" onclick="showAuthModal('login')">Đăng Nhập</div>
+                <div class="auth-tab" data-tab="signup" onclick="showAuthModal('signup')">Đăng Ký</div>
+            </div>
+            <form id="authForm" class="auth-form">
+                <!-- Form fields will be injected by JS -->
+            </form>
+        </div>
+    </div>
+
     <script defer src="app.js?v=2"></script>
+    <script defer src="ai-divination.js?v=1"></script>
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
