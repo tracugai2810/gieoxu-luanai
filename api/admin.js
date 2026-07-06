@@ -166,8 +166,15 @@ module.exports = async (req, res) => {
         }
 
         if (req.method === 'POST' && action === 'update_mission') {
-            const { id, is_active } = req.body;
-            await supabaseRequest(`/rest/v1/missions?id=eq.${id}`, 'PATCH', { is_active });
+            const { id, is_active, title, reward_xu, action_url, is_hot } = req.body;
+            const updateData = {};
+            if (is_active !== undefined) updateData.is_active = is_active;
+            if (title !== undefined) updateData.title = title;
+            if (reward_xu !== undefined) updateData.reward_xu = reward_xu;
+            if (action_url !== undefined) updateData.action_url = action_url;
+            if (is_hot !== undefined) updateData.is_hot = is_hot;
+
+            await supabaseRequest(`/rest/v1/missions?id=eq.${id}`, 'PATCH', updateData);
             return res.status(200).json({ success: true });
         }
 

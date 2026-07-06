@@ -1528,7 +1528,7 @@ function closeMissionsModal() {
 
 async function fetchAndRenderMissions() {
     const container = document.getElementById('missionsContainer');
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('sa_token');
     
     if (!token) {
         container.innerHTML = '<div style="text-align: center; color: #aaa; padding: 20px;">Vui lòng đăng nhập để xem nhiệm vụ.</div>';

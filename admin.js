@@ -218,6 +218,7 @@ async function loadMissions() {
                     </button>
                 </td>
                 <td>
+                    <button class="btn" style="padding: 5px 10px; font-size: 0.8rem; background: #3498db; margin-right: 5px;" onclick="editMission('${m.id}', '${m.title}', ${m.reward_xu}, '${m.action_url || ''}', ${m.is_hot})">Sửa</button>
                     <button class="btn" style="padding: 5px 10px; font-size: 0.8rem; background: #e74c3c;" onclick="deleteMission('${m.id}')">Xóa</button>
                 </td>
             `;
@@ -236,6 +237,11 @@ async function addMission() {
 
     if (!title || !reward) return alert("Vui lòng nhập tên và số xu thưởng!");
 
+    const btn = event.target || document.querySelector('button[onclick="addMission()"]');
+    const oldText = btn.innerText;
+    btn.innerText = "Đang lưu...";
+    btn.disabled = true;
+
     try {
         await fetchAdmin('add_mission', 'POST', {
             title,
@@ -247,9 +253,12 @@ async function addMission() {
         document.getElementById('newMissionReward').value = '';
         document.getElementById('newMissionUrl').value = '';
         document.getElementById('newMissionHot').checked = false;
-        loadMissions();
+        await loadMissions();
     } catch (e) {
         alert("Lỗi: " + e.message);
+    } finally {
+        btn.innerText = oldText;
+        btn.disabled = false;
     }
 }
 
@@ -259,6 +268,32 @@ async function toggleMissionActive(id, newState) {
         loadMissions();
     } catch (e) {
         alert("Lỗi: " + e.message);
+    }
+}
+
+async function editMission(id, currentTitle, currentReward, currentUrl, currentHot) {
+    const newTitle = prompt("Nhập tên nhiệm vụ mới:", currentTitle);
+    if (newTitle === null) return;
+    
+    const newReward = prompt("Nhập số xu thưởng mới:", currentReward);
+    if (newReward === null) return;
+
+    const newUrl = prompt("Nhập link mới (để trống nếu không có):", currentUrl);
+    if (newUrl === null) return;
+
+    const isHot = confirm("Nhiệm vụ này có phải HOT không? (OK = Có, Cancel = Không)");
+
+    try {
+        await fetchAdmin('update_mission', 'POST', {
+            id,
+            title: newTitle.trim(),
+            reward_xu: parseInt(newReward) || 0,
+            action_url: newUrl.trim(),
+            is_hot: isHot
+        });
+        loadMissions();
+    } catch (e) {
+        alert("Lỗi sửa nhiệm vụ: " + e.message);
     }
 }
 
