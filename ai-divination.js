@@ -245,11 +245,11 @@ async function loadModels() {
         // Sửa nhanh: Ta sẽ tự tạo một mảng model dựa trên bảng giá đã chốt:
         
         availableModels = [
-            {id: "gemini-1.5-flash-lite-preview-06-17", name: "Cơ Bản (G. 2.5 Lite)", xuCost: 5, enabled: true},
-            {id: "gemini-2.0-flash-lite", name: "Tiêu Chuẩn (G. 3.1 Lite)", xuCost: 10, enabled: true},
-            {id: "gemini-1.5-flash", name: "Chi Tiết (G. 2.5 Flash)", xuCost: 15, enabled: true},
-            {id: "gemini-1.5-flash-preview-05-20", name: "Chuyên Sâu (G. 3 Flash)", xuCost: 20, enabled: true},
-            {id: "gemini-2.0-flash", name: "Đại Sư (G. 3.5 Flash)", xuCost: 30, enabled: true}
+            {id: "gemini-1.5-flash-lite-preview-06-17", name: "Cơ Bản", xuCost: 5, enabled: true},
+            {id: "gemini-2.0-flash-lite", name: "Tiêu Chuẩn", xuCost: 10, enabled: true},
+            {id: "gemini-1.5-flash", name: "Chi Tiết", xuCost: 15, enabled: true},
+            {id: "gemini-1.5-flash-preview-05-20", name: "Chuyên Sâu", xuCost: 20, enabled: true},
+            {id: "gemini-2.0-flash", name: "Đại Sư", xuCost: 30, enabled: true}
         ];
         renderModelCards();
     } catch (e) {
@@ -292,23 +292,25 @@ function renderModelCards() {
 
 function updateDivineButton() {
     const btn = document.getElementById('btnDivine');
-    const costSpan = document.getElementById('divineCost');
-    if (!btn || !costSpan) return;
+    if (!btn) return;
     
-    const model = availableModels.find(m => m.id === selectedModelId);
-    const cost = model ? model.xuCost : 0;
+    const m = availableModels.find(x => x.id === selectedModelId);
+    if (!m) return;
     
-    costSpan.textContent = cost;
-    
-    if (!currentToken) {
-        btn.innerHTML = `🔮 Đăng Nhập Để Luận Giải`;
-        btn.disabled = false;
+    if (!currentUser) {
+        btn.innerHTML = '🔮 Đăng Nhập Để Luận Giải';
         btn.onclick = () => showAuthModal('login');
-    } else if (currentXu < cost) {
-        btn.innerHTML = `❌ Không Đủ Xu (${cost} xu)`;
+        return;
+    }
+    
+    const costSpan = document.getElementById('divineCost');
+    if (costSpan) costSpan.textContent = m.xuCost;
+    
+    if (currentXu < m.xuCost) {
+        btn.innerHTML = `❌ Không Đủ Xu (${m.xuCost} xu)`;
         btn.disabled = true;
     } else {
-        btn.innerHTML = `🔮 Luận Giải (${cost} xu)`;
+        btn.innerHTML = `🔮 Luận Giải (${m.xuCost} xu)`;
         btn.disabled = false;
         btn.onclick = startAIDivination;
     }
