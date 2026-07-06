@@ -54,6 +54,7 @@ async function fetchAdmin(action, method = 'GET', body = null) {
 async function loadAdminData() {
     try {
         loadMissions(); // Load missions asynchronously
+        loadDeposits(); // Load deposits asynchronously
         
         // Load all data concurrently
         const [statsData, configData, usersData] = await Promise.all([
@@ -302,6 +303,78 @@ async function deleteMission(id) {
     try {
         await fetchAdmin('delete_mission', 'POST', { id });
         loadMissions();
+    } catch (e) {
+        alert("Lỗi: " + e.message);
+    }
+}
+
+// ==========================================
+// DEPOSIT REQUESTS
+// ==========================================
+
+async function loadDeposits() {
+    try {
+        const data = await fetchAdmin('get_deposits');
+        const tbody = document.getElementById('depositsTableBody');
+        tbody.innerHTML = '';
+        
+        if (!data.deposits || data.deposits.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#aaa;">Chưa có yêu cầu nào</td></tr>';
+            return;
+        }
+
+        data.deposits.forEach(d => {
+            const tr = document.createElement('tr');
+            const timeStr = new Date(d.created_at).toLocaleString('vi-VN');
+            
+            let statusHtml = '';
+            let actionHtml = '';
+
+            if (d.status === 'pending') {
+                statusHtml = '<span style="color:#f39c12; font-weight:bold;">Chờ Duyệt</span>';
+                actionHtml = `
+                    <button class="btn" style="padding: 5px 10px; font-size: 0.8rem; background: #2ecc71; margin-right: 5px;" onclick="approveDeposit('${d.id}')">Duyệt (+${d.reward_xu} xu)</button>
+                    <button class="btn" style="padding: 5px 10px; font-size: 0.8rem; background: #e74c3c;" onclick="rejectDeposit('${d.id}')">Từ chối</button>
+                `;
+            } else if (d.status === 'approved') {
+                statusHtml = '<span style="color:#2ecc71; font-weight:bold;">Đã Duyệt</span>';
+                actionHtml = '<span style="color:#aaa;">-</span>';
+            } else {
+                statusHtml = '<span style="color:#e74c3c; font-weight:bold;">Từ Chối</span>';
+                actionHtml = '<span style="color:#aaa;">-</span>';
+            }
+
+            tr.innerHTML = `
+                <td>${d.email}</td>
+                <td>${d.mission_title}</td>
+                <td style="color:#f1c40f;">+${d.reward_xu}</td>
+                <td>${timeStr}</td>
+                <td>${statusHtml}</td>
+                <td>${actionHtml}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    } catch (e) {
+        console.error("Lỗi load deposits:", e);
+    }
+}
+
+async function approveDeposit(id) {
+    if (!confirm("Bạn có chắc chắn muốn Duyệt yêu cầu này? Hệ thống sẽ tự động cộng xu cho User.")) return;
+    try {
+        await fetchAdmin('approve_deposit', 'POST', { id });
+        loadDeposits();
+        loadUsers(); // Cập nhật lại số dư user nếu cần
+    } catch (e) {
+        alert("Lỗi: " + e.message);
+    }
+}
+
+async function rejectDeposit(id) {
+    if (!confirm("Từ chối yêu cầu này?")) return;
+    try {
+        await fetchAdmin('reject_deposit', 'POST', { id });
+        loadDeposits();
     } catch (e) {
         alert("Lỗi: " + e.message);
     }

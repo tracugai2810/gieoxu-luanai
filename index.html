@@ -354,6 +354,23 @@
         </div>
     </div>
 
+    <!-- Donate / Deposit Modal -->
+    <div id="donateModal" class="auth-modal" style="display:none; align-items: center; justify-content: center;">
+        <div class="auth-modal-content" style="max-width: 400px; width: 90%; text-align: center; position: relative;">
+            <button class="auth-close" onclick="closeDonateModal()">✕</button>
+            <h2 id="donateTitle" style="color: #f1c40f; margin-top: 0; margin-bottom: 15px;">Quyên góp</h2>
+            <div style="background: white; padding: 10px; border-radius: 10px; display: inline-block; margin-bottom: 15px;">
+                <img id="donateQrImage" src="" alt="Mã QR Chuyển Khoản" style="max-width: 100%; height: auto; display: block; border-radius: 8px;">
+            </div>
+            <div style="background: rgba(241, 196, 15, 0.1); border-left: 3px solid #f1c40f; padding: 10px; text-align: left; margin-bottom: 20px; font-size: 0.9rem;">
+                <strong>LƯU Ý QUAN TRỌNG:</strong><br>
+                Nội dung chuyển khoản bắt buộc điền: <br>
+                <b id="donateUserEmail" style="color: #f1c40f; font-size: 1.1rem; user-select: all;"></b>
+            </div>
+            <button id="btnConfirmDonate" class="btn" style="width: 100%; padding: 12px; font-size: 1rem; background: #2ecc71;" onclick="confirmDonate()">Tôi đã chuyển khoản thành công</button>
+        </div>
+    </div>
+
 </body>
 
 </html>

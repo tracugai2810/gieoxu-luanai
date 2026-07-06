@@ -158,6 +158,23 @@ module.exports = async (req, res) => {
             });
         }
 
+        if (req.method === 'POST' && action === 'request_deposit') {
+            const { mission_id } = req.body;
+            if (!mission_id) {
+                return res.status(400).json({ success: false, error: 'Thiếu mission_id' });
+            }
+
+            // Lưu vào bảng deposit_requests
+            await supabaseRequest('/rest/v1/deposit_requests', 'POST', {
+                user_id: userId,
+                mission_id: mission_id,
+                status: 'pending'
+            }, true);
+
+            return res.status(200).json({ success: true, message: 'Đã gửi yêu cầu nạp' });
+        }
+
+
         return res.status(404).json({ error: 'Action not found' });
 
     } catch (error) {

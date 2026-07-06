@@ -560,7 +560,7 @@ function renderCaptureHTML(data) {
         <div class="info-header">
             <div class="info-content">
                 <div class="info-line"><strong>Ngày giờ:</strong> ${data.formattedDate} &nbsp;&nbsp;&nbsp;&nbsp; <strong>Phương pháp:</strong> ${methodText}</div>
-                <div class="info-line" style="max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"><strong>Câu hỏi:</strong> ${(() => { const q = (document.getElementById('preTossQuestion') ? document.getElementById('preTossQuestion').value.trim() : ''); return q.length > 60 ? q.substring(0, 60) + '...' : (q || '—'); })()}</div>
+                <div class="info-line"><strong>Can chi:</strong> ${dateInfo.fullCanChi}</div>
                 <div class="info-line"><strong>Hào tâm:</strong> ${dateInfo.haoTamText || ''} &nbsp;&nbsp;&nbsp;&nbsp; <strong>Tuần Không:</strong> <span class="highlight">${dateInfo.tuanKhong}</span></div>
                 <div class="info-line"><strong>Nhật Thần:</strong> <span class="highlight">${dateInfo.nhatThan}</span> &nbsp;&nbsp;&nbsp;&nbsp; <strong>Nguyệt Lệnh:</strong> <span class="highlight">${dateInfo.nguyetLenh}</span></div>
             </div>
@@ -696,7 +696,6 @@ function executeCapture(target, captureArea) {
         // Hide loading, show result
         document.getElementById('loading-overlay').classList.remove('visible');
         document.getElementById('resultSection').classList.add('visible');
-        if (typeof updateDivineButton === 'function') updateDivineButton();
 
         // Scroll to download button
         setTimeout(() => {
@@ -1305,22 +1304,6 @@ function calculateShenSha(dCan, dChi, mChi) {
 // COIN TOSS INTERACTIVE FEATURE
 // ============================================
 
-function promptForQuestion() {
-    document.getElementById('questionModal').style.display = 'flex';
-    document.getElementById('preTossQuestion').focus();
-}
-
-function submitQuestionAndToss() {
-    const q = document.getElementById('preTossQuestion').value.trim();
-    if (!q) {
-        alert('Vui lòng điền câu hỏi để quẻ gieo được linh ứng và chuẩn xác nhất!');
-        return;
-    }
-    // Store question globally or hide modal and start toss
-    document.getElementById('questionModal').style.display = 'none';
-    startCoinToss();
-}
-
 let tossResults = [];
 let currentTossIndex = 1;
 
@@ -1333,6 +1316,7 @@ function startCoinToss() {
     const modal = document.getElementById('coin-toss-modal');
     const resultsList = document.getElementById('toss-results-list');
     const tossBtn = document.getElementById('toss-btn');
+    const finishBtn = document.getElementById('finish-toss-btn');
     const statusText = document.getElementById('toss-status');
     const coins = document.querySelectorAll('.coin');
     const progressFill = document.getElementById('toss-progress-fill');
@@ -1341,6 +1325,7 @@ function startCoinToss() {
     tossBtn.style.display = 'block';
     tossBtn.disabled = false;
     tossBtn.innerHTML = 'Gieo Hào 1';
+    finishBtn.style.display = 'none';
     statusText.innerText = 'Hào 1 / 6';
     if (progressFill) progressFill.style.width = '0%';
 
@@ -1458,11 +1443,8 @@ function performToss() {
             document.getElementById('toss-status').innerText = `Hào ${currentTossIndex} / 6`;
         } else {
             tossBtn.style.display = 'none';
+            document.getElementById('finish-toss-btn').style.display = 'block';
             document.getElementById('toss-status').innerText = 'Đã gieo xong 6 hào!';
-            // Auto finish toss immediately
-            setTimeout(() => {
-                finishTossSequence();
-            }, 300);
         }
 
     }, 2000);
@@ -1646,12 +1628,67 @@ async function doCheckinMission() {
     }, 1000);
 }
 
+let currentDonateMissionId = null;
+
 function doMission(id, url) {
     if (url) {
-        window.open(url, '_blank');
-        // Vì hệ thống nạp tiền tự động đang chờ duyệt, tạm thời nếu user click link (ví dụ QR code) 
-        // thì chưa thể tự cộng xu ngay. Khi nào admin làm xong webhook sẽ cập nhật sau.
+        if (url.toLowerCase().endsWith('.jpg') || url.toLowerCase().endsWith('.png')) {
+            // Hiển thị Donate Modal
+            currentDonateMissionId = id;
+            document.getElementById('donateQrImage').src = url;
+            
+            // Lấy email user từ giao diện
+            const emailElem = document.getElementById('authDropdownTrigger');
+            let emailText = "Email_Của_Bạn";
+            if (emailElem && emailElem.innerText.includes('@')) {
+                emailText = emailElem.innerText.split(' |')[0].trim();
+            }
+            document.getElementById('donateUserEmail').innerText = emailText;
+            
+            document.getElementById('donateModal').style.display = 'flex';
+        } else {
+            window.open(url, '_blank');
+        }
     } else {
         alert("Chưa có link hướng dẫn cho nhiệm vụ này. Liên hệ Admin.");
+    }
+}
+
+function closeDonateModal() {
+    document.getElementById('donateModal').style.display = 'none';
+    currentDonateMissionId = null;
+}
+
+async function confirmDonate() {
+    if (!currentDonateMissionId) return;
+
+    const btn = document.getElementById('btnConfirmDonate');
+    const oldText = btn.innerText;
+    btn.innerText = "Đang gửi yêu cầu...";
+    btn.disabled = true;
+
+    try {
+        const token = localStorage.getItem('sa_token');
+        const res = await fetch('/api/auth?action=request_deposit', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ mission_id: currentDonateMissionId })
+        });
+        const data = await res.json();
+        
+        if (data.success) {
+            alert("Đã gửi yêu cầu xác nhận nạp xu! Vui lòng chờ Admin duyệt nhé.");
+            closeDonateModal();
+        } else {
+            alert("Lỗi: " + data.error);
+        }
+    } catch (e) {
+        alert("Lỗi kết nối. Vui lòng thử lại sau.");
+    } finally {
+        btn.innerText = oldText;
+        btn.disabled = false;
     }
 }

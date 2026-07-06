@@ -187,6 +187,84 @@ module.exports = async (req, res) => {
             return res.status(200).json({ success: true });
         }
 
+        if (req.method === 'GET' && action === 'get_deposits') {
+            const deposits = await supabaseRequest('/rest/v1/deposit_requests?order=created_at.desc', 'GET', null);
+            if (!deposits) return res.status(200).json({ deposits: [] });
+
+            // Fetch user emails from profiles
+            const userIds = [...new Set(deposits.map(d => d.user_id))];
+            let profiles = [];
+            if (userIds.length > 0) {
+                profiles = await supabaseRequest(`/rest/v1/profiles?id=in.(${userIds.join(',')})&select=id,email`);
+            }
+            const profileMap = {};
+            (profiles || []).forEach(p => profileMap[p.id] = p.email);
+
+            // Fetch mission details
+            const missionIds = [...new Set(deposits.map(d => d.mission_id))];
+            let missions = [];
+            if (missionIds.length > 0) {
+                missions = await supabaseRequest(`/rest/v1/missions?id=in.(${missionIds.join(',')})&select=id,title,reward_xu`);
+            }
+            const missionMap = {};
+            (missions || []).forEach(m => missionMap[m.id] = m);
+
+            const enriched = deposits.map(d => ({
+                ...d,
+                email: profileMap[d.user_id] || 'N/A',
+                mission_title: missionMap[d.mission_id]?.title || 'Unknown',
+                reward_xu: missionMap[d.mission_id]?.reward_xu || 0
+            }));
+
+            return res.status(200).json({ deposits: enriched });
+        }
+
+        if (req.method === 'POST' && action === 'approve_deposit') {
+            const { id } = req.body;
+            
+            // Lấy thông tin deposit
+            const deposits = await supabaseRequest(`/rest/v1/deposit_requests?id=eq.${id}`, 'GET');
+            if (!deposits || deposits.length === 0) return res.status(404).json({ error: 'Not found' });
+            const deposit = deposits[0];
+            if (deposit.status !== 'pending') return res.status(400).json({ error: 'Already processed' });
+
+            // Lấy thông tin mission
+            const missions = await supabaseRequest(`/rest/v1/missions?id=eq.${deposit.mission_id}`, 'GET');
+            const reward = missions && missions.length > 0 ? missions[0].reward_xu : 0;
+
+            // 1. Cập nhật status
+            await supabaseRequest(`/rest/v1/deposit_requests?id=eq.${id}`, 'PATCH', { status: 'approved' });
+
+            // 2. Lấy profile và cộng xu
+            const profiles = await supabaseRequest(`/rest/v1/profiles?id=eq.${deposit.user_id}&select=id,xu_balance`);
+            if (profiles && profiles.length > 0) {
+                const newXu = profiles[0].xu_balance + reward;
+                await supabaseRequest(`/rest/v1/profiles?id=eq.${deposit.user_id}`, 'PATCH', { xu_balance: newXu });
+
+                // Ghi transaction
+                await supabaseRequest('/rest/v1/xu_transactions', 'POST', {
+                    user_id: deposit.user_id,
+                    amount: reward,
+                    type: 'donate',
+                    description: `Duyệt nạp xu từ nhiệm vụ: ${missions[0]?.title}`
+                });
+            }
+
+            // 3. Mark mission completed
+            await supabaseRequest('/rest/v1/user_missions', 'POST', {
+                user_id: deposit.user_id,
+                mission_id: deposit.mission_id
+            });
+
+            return res.status(200).json({ success: true });
+        }
+
+        if (req.method === 'POST' && action === 'reject_deposit') {
+            const { id } = req.body;
+            await supabaseRequest(`/rest/v1/deposit_requests?id=eq.${id}`, 'PATCH', { status: 'rejected' });
+            return res.status(200).json({ success: true });
+        }
+
         return res.status(404).json({ error: 'Action not found' });
 
     } catch (error) {
