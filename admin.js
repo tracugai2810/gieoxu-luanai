@@ -95,8 +95,11 @@ async function loadAdminData() {
                     <td>
                         <div style="display:flex; gap:5px;">
                             <input type="number" id="xu_input_${index}" style="width:70px; padding:5px; border-radius:4px; background:#1a2235; border:1px solid #333; color:#fff;" placeholder="Số xu" min="1">
-                            <button onclick="updateUserXu('${email}', 'add', ${index})" style="background:#27ae60; color:#fff; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;" title="Cộng">+</button>
-                            <button onclick="updateUserXu('${email}', 'sub', ${index})" style="background:#e74c3c; color:#fff; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;" title="Trừ">-</button>
+                            <button onclick="updateUserXu('${email}', 'add', ${index})" style="background:#27ae60; color:#fff; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;" title="Cộng Xu">+</button>
+                            <button onclick="updateUserXu('${email}', 'sub', ${index})" style="background:#e74c3c; color:#fff; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;" title="Trừ Xu">-</button>
+                            
+                            <button onclick="resetPassword('${u.id}', '${displayEmail}')" style="background:#f39c12; color:#fff; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; margin-left: 10px;" title="Đổi Mật Khẩu">🔑</button>
+                            <button onclick="deleteUser('${u.id}', '${displayEmail}')" style="background:#c0392b; color:#fff; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;" title="Xóa User">🗑️</button>
                         </div>
                     </td>
                 </tr>
@@ -157,6 +160,36 @@ function filterUsers() {
             } else {
                 rows[i].style.display = "none";
             }
+        }
+    }
+}
+
+async function deleteUser(userId, displayEmail) {
+    if (confirm(`⚠️ CẢNH BÁO: Bạn có chắc chắn muốn xóa hoàn toàn tài khoản "${displayEmail}"?\nHành động này không thể hoàn tác và sẽ xóa cả lịch sử của user này!`)) {
+        try {
+            await fetchAdmin('delete_user', 'POST', { userId });
+            alert("Đã xóa tài khoản thành công!");
+            loadAdminData(); // Tải lại bảng
+        } catch (e) {
+            alert("Lỗi khi xóa: " + e.message);
+        }
+    }
+}
+
+async function resetPassword(userId, displayEmail) {
+    const newPassword = prompt(`🔑 Nhập mật khẩu MỚI cho tài khoản "${displayEmail}":\n(Mật khẩu phải từ 6 ký tự trở lên)`);
+    if (newPassword === null) return; // Hủy
+    
+    if (newPassword.trim().length < 6) {
+        return alert("Mật khẩu phải có ít nhất 6 ký tự!");
+    }
+    
+    if (confirm(`Xác nhận đổi mật khẩu cho "${displayEmail}" thành: ${newPassword} ?`)) {
+        try {
+            await fetchAdmin('reset_password', 'POST', { userId, newPassword: newPassword.trim() });
+            alert("Đổi mật khẩu thành công! Khách hàng có thể đăng nhập bằng mật khẩu mới ngay lập tức.");
+        } catch (e) {
+            alert("Lỗi khi đổi mật khẩu: " + e.message);
         }
     }
 }

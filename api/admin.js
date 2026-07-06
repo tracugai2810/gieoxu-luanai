@@ -127,6 +127,28 @@ module.exports = async (req, res) => {
             return res.status(200).json({ success: true, newXu });
         }
 
+        if (req.method === 'POST' && action === 'delete_user') {
+            const { userId } = req.body;
+            if (!userId) return res.status(400).json({ error: 'Missing userId' });
+            
+            // Delete from auth.users
+            await supabaseRequest(`/auth/v1/admin/users/${userId}`, 'DELETE');
+            // Xóa profile (phòng trường hợp DB không có cascade)
+            await supabaseRequest(`/rest/v1/profiles?id=eq.${userId}`, 'DELETE');
+            
+            return res.status(200).json({ success: true, message: 'Đã xóa người dùng thành công' });
+        }
+
+        if (req.method === 'POST' && action === 'reset_password') {
+            const { userId, newPassword } = req.body;
+            if (!userId || !newPassword) return res.status(400).json({ error: 'Missing userId or newPassword' });
+            
+            // Update auth.users password
+            await supabaseRequest(`/auth/v1/admin/users/${userId}`, 'PUT', { password: newPassword });
+            
+            return res.status(200).json({ success: true, message: 'Đã đổi mật khẩu thành công' });
+        }
+
         return res.status(404).json({ error: 'Action not found' });
 
     } catch (error) {
