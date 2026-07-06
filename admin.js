@@ -82,10 +82,13 @@ async function loadAdminData() {
         tbody.innerHTML = '';
         usersData.data.forEach((u, index) => {
             const date = new Date(u.created_at).toLocaleDateString('vi-VN');
-            const email = u.email || u.id;
+            let email = u.email || u.id;
+            let displayEmail = email;
+            if (displayEmail.endsWith('@gieoque.id.vn')) displayEmail = displayEmail.replace('@gieoque.id.vn', '');
+            
             tbody.innerHTML += `
                 <tr>
-                    <td style="font-weight:600">${email}</td>
+                    <td style="font-weight:600">${displayEmail}</td>
                     <td style="color:#f1c40f; font-weight:bold">${u.xu_balance}</td>
                     <td>${u.role}</td>
                     <td>${date}</td>

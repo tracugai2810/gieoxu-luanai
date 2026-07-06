@@ -76,12 +76,17 @@ function updateAuthUI(user) {
     const checkinBtn = document.getElementById('btnCheckin');
 
     if (user) {
-        btnLogin.style.display = 'none';
-        btnSignup.style.display = 'none';
-        userMenu.style.display = 'flex';
+        document.getElementById('btnSignup').style.display = 'none';
+        document.getElementById('btnLogin').style.display = 'none';
+        document.getElementById('userMenu').style.display = 'flex';
         
-        userName.textContent = (user.email || 'User').split('@')[0];
-        xuAmount.textContent = user.xu_balance;
+        let displayEmail = user.email || user.id;
+        if (displayEmail.endsWith('@gieoque.id.vn')) {
+            displayEmail = displayEmail.replace('@gieoque.id.vn', '');
+        }
+        document.getElementById('userName').textContent = displayEmail;
+        
+        document.getElementById('xuAmount').textContent = user.xu_balance;
         
         // Cập nhật nút Luận giải nếu đang hiển thị
         updateDivineButton();
@@ -135,8 +140,8 @@ function renderAuthForm(tab) {
     form.innerHTML = `
         <h3>${title}</h3>
         <div class="form-group">
-            <label>Email</label>
-            <input type="email" id="authEmail" required placeholder="nhap@email.com">
+            <label>Tài khoản</label>
+            <input type="text" id="authEmail" required placeholder="Nhập tên đăng nhập (nickname)">
         </div>
         <div class="form-group">
             <label>Mật khẩu</label>

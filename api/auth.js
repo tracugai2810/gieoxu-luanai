@@ -39,8 +39,11 @@ module.exports = async (req, res) => {
 
     try {
         if (req.method === 'POST' && action === 'signup') {
-            const { email, password } = req.body;
-            if (!email || !password) return res.status(400).json({ error: 'Email và Password là bắt buộc' });
+            let { email, password } = req.body;
+            if (!email || !password) return res.status(400).json({ error: 'Tài khoản và Mật khẩu là bắt buộc' });
+            
+            email = email.trim();
+            if (!email.includes('@')) email = `${email}@gieoque.id.vn`;
             
             // Supabase auth API
             const result = await supabaseRequest('/auth/v1/signup', 'POST', { email, password });
@@ -53,7 +56,12 @@ module.exports = async (req, res) => {
         }
 
         if (req.method === 'POST' && action === 'login') {
-            const { email, password } = req.body;
+            let { email, password } = req.body;
+            if (!email || !password) return res.status(400).json({ error: 'Tài khoản và Mật khẩu là bắt buộc' });
+            
+            email = email.trim();
+            if (!email.includes('@')) email = `${email}@gieoque.id.vn`;
+
             const result = await supabaseRequest('/auth/v1/token?grant_type=password', 'POST', { email, password });
             return res.status(200).json({ success: true, data: result });
         }
