@@ -67,7 +67,7 @@
     <link rel="preload" href="am.png" as="image">
 
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <!-- CSS -->
     <link rel="stylesheet" href="styles.css?v=2">
@@ -130,7 +130,7 @@
 
             <!-- Main CTA -->
             <button class="btn-main-cta" id="btn-gieo-xu" onclick="promptForQuestion()">
-                <img src="duong.png" alt="Đồng xu gieo quẻ Lục Hào" class="cta-coin-icon">
+                <img loading="lazy" src="duong.png" alt="Đồng xu gieo quẻ Lục Hào" class="cta-coin-icon">
                 <span>Gieo Xu Miễn Phí</span>
             </button>
 
@@ -360,7 +360,7 @@
             <button class="auth-close" onclick="closeDonateModal()">✕</button>
             <h2 id="donateTitle" style="color: #f1c40f; margin-top: 0; margin-bottom: 15px;">Quyên góp</h2>
             <div style="background: white; padding: 10px; border-radius: 10px; display: inline-block; margin-bottom: 15px;">
-                <img id="donateQrImage" src="" alt="Mã QR Chuyển Khoản" style="max-width: 100%; height: auto; display: block; border-radius: 8px;">
+                <img loading="lazy" id="donateQrImage" src="" alt="Mã QR Chuyển Khoản" style="max-width: 100%; height: auto; display: block; border-radius: 8px;">
             </div>
             <div style="background: rgba(241, 196, 15, 0.1); border-left: 3px solid #f1c40f; padding: 10px; text-align: left; margin-bottom: 20px; font-size: 0.9rem;">
                 <strong>LƯU Ý QUAN TRỌNG:</strong><br>

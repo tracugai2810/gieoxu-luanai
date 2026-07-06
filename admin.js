@@ -1,4 +1,48 @@
-let adminToken = null;
+// --- TOAST SYSTEM ---
+function showToast(msg, type = 'info') {
+    let container = document.getElementById('toast-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'toast-container';
+        document.body.appendChild(container);
+    }
+    const toast = document.createElement('div');
+    toast.className = 'toast-msg ' + (type==='error'?'toast-error':(type==='success'?'toast-success':'toast-warning'));
+    toast.innerText = msg;
+    container.appendChild(toast);
+    setTimeout(() => { toast.classList.add('show'); }, 10);
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+
+let adminToken = localStorage.getItem('sa_token') || null;
+
+async function checkLogin() {
+    if (!adminToken) return;
+    try {
+        const roleRes = await fetch('/api/auth?action=profile', {
+            headers: { 'Authorization': `Bearer ${adminToken}` }
+        });
+        const roleData = await roleRes.json();
+        if (roleData.success && roleData.profile.role === 'admin') {
+            document.getElementById('login-overlay').style.display = 'none';
+            document.getElementById('admin-content').style.display = 'block';
+            loadAdminData();
+            // Auto refresh every 15 seconds
+            setInterval(loadAdminData, 15000);
+        } else {
+            // Not admin
+            adminToken = null;
+        }
+    } catch (e) {
+        // network error
+    }
+}
+
+// Call on load
+checkLogin();
 
 async function loginAdmin() {
     const email = document.getElementById('adminEmail').value;
@@ -14,24 +58,13 @@ async function loginAdmin() {
         
         if (data.success) {
             adminToken = data.data.access_token;
-            // Check role
-            const roleRes = await fetch('/api/auth?action=profile', {
-                headers: { 'Authorization': `Bearer ${adminToken}` }
-            });
-            const roleData = await roleRes.json();
-            
-            if (roleData.success && roleData.profile.role === 'admin') {
-                document.getElementById('login-overlay').style.display = 'none';
-                document.getElementById('admin-content').style.display = 'block';
-                loadAdminData();
-            } else {
-                alert("Tài khoản không có quyền Admin!");
-            }
+            localStorage.setItem('sa_token', adminToken);
+            checkLogin();
         } else {
-            alert(data.error || "Sai email hoặc mật khẩu");
+            showToast(data.error || "Sai email hoặc mật khẩu");
         }
     } catch (e) {
-        alert("Lỗi kết nối");
+        showToast("Lỗi kết nối");
     }
 }
 
@@ -110,7 +143,7 @@ async function loadAdminData() {
         });
         
     } catch (e) {
-        alert("Lỗi tải dữ liệu: " + e.message);
+        showToast("Lỗi tải dữ liệu: " + e.message);
     }
 }
 
@@ -122,9 +155,9 @@ async function saveApiKeys() {
     
     try {
         await fetchAdmin('config', 'POST', { key: 'api_keys', value: keys });
-        alert("Đã lưu API Keys thành công!");
+        showToast("Đã lưu API Keys thành công!");
     } catch (e) {
-        alert("Lỗi: " + e.message);
+        showToast("Lỗi: " + e.message);
     }
 }
 
@@ -133,7 +166,7 @@ async function updateUserXu(email, action, index) {
     const amount = parseInt(amountStr);
     
     if (isNaN(amount) || amount <= 0) {
-        return alert("Vui lòng nhập số lượng xu hợp lệ (lớn hơn 0)!");
+        return showToast("Vui lòng nhập số lượng xu hợp lệ (lớn hơn 0)!");
     }
     
     const finalAmount = action === 'add' ? amount : -amount;
@@ -142,10 +175,10 @@ async function updateUserXu(email, action, index) {
     if (confirm(`Bạn chắc chắn muốn ${actionText} ${amount} xu cho user ${email}?`)) {
         try {
             await fetchAdmin('update_xu', 'POST', { email, amount: finalAmount });
-            alert("Thành công!");
+            showToast("Thành công!");
             loadAdminData(); // reload bảng
         } catch (e) {
-            alert("Lỗi: " + e.message);
+            showToast("Lỗi: " + e.message);
         }
     }
 }
@@ -171,10 +204,10 @@ async function deleteUser(userId, displayEmail) {
     if (confirm(`⚠️ CẢNH BÁO: Bạn có chắc chắn muốn xóa hoàn toàn tài khoản "${displayEmail}"?\nHành động này không thể hoàn tác và sẽ xóa cả lịch sử của user này!`)) {
         try {
             await fetchAdmin('delete_user', 'POST', { userId });
-            alert("Đã xóa tài khoản thành công!");
+            showToast("Đã xóa tài khoản thành công!");
             loadAdminData(); // Tải lại bảng
         } catch (e) {
-            alert("Lỗi khi xóa: " + e.message);
+            showToast("Lỗi khi xóa: " + e.message);
         }
     }
 }
@@ -184,15 +217,15 @@ async function resetPassword(userId, displayEmail) {
     if (newPassword === null) return; // Hủy
     
     if (newPassword.trim().length < 6) {
-        return alert("Mật khẩu phải có ít nhất 6 ký tự!");
+        return showToast("Mật khẩu phải có ít nhất 6 ký tự!");
     }
     
     if (confirm(`Xác nhận đổi mật khẩu cho "${displayEmail}" thành: ${newPassword} ?`)) {
         try {
             await fetchAdmin('reset_password', 'POST', { userId, newPassword: newPassword.trim() });
-            alert("Đổi mật khẩu thành công! Khách hàng có thể đăng nhập bằng mật khẩu mới ngay lập tức.");
+            showToast("Đổi mật khẩu thành công! Khách hàng có thể đăng nhập bằng mật khẩu mới ngay lập tức.");
         } catch (e) {
-            alert("Lỗi khi đổi mật khẩu: " + e.message);
+            showToast("Lỗi khi đổi mật khẩu: " + e.message);
         }
     }
 }
@@ -236,7 +269,7 @@ async function addMission() {
     const url = document.getElementById('newMissionUrl').value.trim();
     const isHot = document.getElementById('newMissionHot').checked;
 
-    if (!title || !reward) return alert("Vui lòng nhập tên và số xu thưởng!");
+    if (!title || !reward) return showToast("Vui lòng nhập tên và số xu thưởng!");
 
     const btn = event.target || document.querySelector('button[onclick="addMission()"]');
     const oldText = btn.innerText;
@@ -256,7 +289,7 @@ async function addMission() {
         document.getElementById('newMissionHot').checked = false;
         await loadMissions();
     } catch (e) {
-        alert("Lỗi: " + e.message);
+        showToast("Lỗi: " + e.message);
     } finally {
         btn.innerText = oldText;
         btn.disabled = false;
@@ -268,7 +301,7 @@ async function toggleMissionActive(id, newState) {
         await fetchAdmin('update_mission', 'POST', { id, is_active: newState });
         loadMissions();
     } catch (e) {
-        alert("Lỗi: " + e.message);
+        showToast("Lỗi: " + e.message);
     }
 }
 
@@ -294,7 +327,7 @@ async function editMission(id, currentTitle, currentReward, currentUrl, currentH
         });
         loadMissions();
     } catch (e) {
-        alert("Lỗi sửa nhiệm vụ: " + e.message);
+        showToast("Lỗi sửa nhiệm vụ: " + e.message);
     }
 }
 
@@ -304,7 +337,7 @@ async function deleteMission(id) {
         await fetchAdmin('delete_mission', 'POST', { id });
         loadMissions();
     } catch (e) {
-        alert("Lỗi: " + e.message);
+        showToast("Lỗi: " + e.message);
     }
 }
 
@@ -365,7 +398,7 @@ async function approveDeposit(id) {
         await fetchAdmin('approve_deposit', 'POST', { id });
         loadAdminData(); // Tải lại toàn bộ bảng (deposits, users, stats)
     } catch (e) {
-        alert("Lỗi: " + e.message);
+        showToast("Lỗi: " + e.message);
     }
 }
 
@@ -375,6 +408,7 @@ async function rejectDeposit(id) {
         await fetchAdmin('reject_deposit', 'POST', { id });
         loadDeposits(); // Chỉ tải lại bảng deposits
     } catch (e) {
-        alert("Lỗi: " + e.message);
+        showToast("Lỗi: " + e.message);
     }
 }
+

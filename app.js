@@ -1,3 +1,22 @@
+// --- TOAST SYSTEM ---
+function showToast(msg, type = 'info') {
+    let container = document.getElementById('toast-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'toast-container';
+        document.body.appendChild(container);
+    }
+    const toast = document.createElement('div');
+    toast.className = 'toast-msg ' + (type==='error'?'toast-error':(type==='success'?'toast-success':'toast-warning'));
+    toast.innerText = msg;
+    container.appendChild(toast);
+    setTimeout(() => { toast.classList.add('show'); }, 10);
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+
 /* ========================================
    LỤC HÀO WEBAPP - JAVASCRIPT
    All divination logic and UI interactions
@@ -658,7 +677,7 @@ function captureAndDisplayImage() {
         script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
         script.onload = () => executeCapture(target, captureArea);
         script.onerror = () => {
-            alert('Không thể tải thư viện tạo ảnh. Vui lòng thử lại!');
+            showToast('Không thể tải thư viện tạo ảnh. Vui lòng thử lại!');
             document.getElementById('loading-overlay').classList.remove('visible');
             captureArea.style.position = 'absolute';
             captureArea.style.left = '-9999px';
@@ -713,7 +732,7 @@ function executeCapture(target, captureArea) {
         // Hide loading
         document.getElementById('loading-overlay').classList.remove('visible');
 
-        alert('Có lỗi khi tạo ảnh. Vui lòng thử lại!');
+        showToast('Có lỗi khi tạo ảnh. Vui lòng thử lại!');
     });
 }
 
@@ -1027,7 +1046,7 @@ function generateCopyText(data) {
 
 function copyToClipboard() {
     if (!currentHexData) {
-        alert("Vui lòng lập quẻ trước!");
+        showToast("Vui lòng lập quẻ trước!");
         return;
     }
 
@@ -1083,11 +1102,11 @@ function fallbackCopyText(text) {
         if (successful) {
             showToast("Đã sao chép thành công!");
         } else {
-            alert("Không thể sao chép. Vui lòng thử lại.");
+            showToast("Không thể sao chép. Vui lòng thử lại.");
         }
     } catch (err) {
         console.error('Fallback copy failed: ', err);
-        alert("Lỗi khi sao chép văn bản.");
+        showToast("Lỗi khi sao chép văn bản.");
     }
 
     document.body.removeChild(textArea);
@@ -1312,7 +1331,7 @@ function promptForQuestion() {
 function submitQuestionAndToss() {
     const q = document.getElementById('preTossQuestion').value.trim();
     if (!q) {
-        alert('Vui lòng điền câu hỏi để quẻ gieo được linh ứng và chuẩn xác nhất!');
+        showToast('Vui lòng điền câu hỏi để quẻ gieo được linh ứng và chuẩn xác nhất!');
         return;
     }
     // Store question globally or hide modal and start toss
@@ -1666,7 +1685,7 @@ function doMission(id, url) {
             window.open(url, '_blank');
         }
     } else {
-        alert("Chưa có link hướng dẫn cho nhiệm vụ này. Liên hệ Admin.");
+        showToast("Chưa có link hướng dẫn cho nhiệm vụ này. Liên hệ Admin.");
     }
 }
 
@@ -1696,15 +1715,18 @@ async function confirmDonate() {
         const data = await res.json();
         
         if (data.success) {
-            alert("Đã gửi yêu cầu xác nhận nạp xu! Vui lòng chờ Admin duyệt nhé.");
+            showToast("Đã gửi yêu cầu xác nhận nạp xu! Vui lòng chờ Admin duyệt nhé.");
             closeDonateModal();
         } else {
-            alert("Lỗi: " + data.error);
+            showToast("Lỗi: " + data.error);
         }
     } catch (e) {
-        alert("Lỗi kết nối. Vui lòng thử lại sau.");
+        showToast("Lỗi kết nối. Vui lòng thử lại sau.");
     } finally {
         btn.innerText = oldText;
         btn.disabled = false;
     }
 }
+
+
+

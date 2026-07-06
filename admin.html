@@ -26,7 +26,7 @@
         table { width: 100%; border-collapse: collapse; margin-top: 15px; }
         th, td { padding: 10px; border-bottom: 1px solid #333; text-align: left; }
         th { color: #f1c40f; }
-    </style>
+    .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; margin-bottom: 15px; } .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; margin-bottom: 15px; } #toast-container { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; } .toast-msg { background: rgba(0,0,0,0.85); color: #fff; padding: 12px 24px; border-radius: 25px; font-size: 0.95rem; font-weight: 500; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.3); opacity: 0; transform: translateY(20px); transition: opacity 0.3s ease, transform 0.3s ease; max-width: 90vw; } .toast-msg.show { opacity: 1; transform: translateY(0); } .toast-success { border-left: 4px solid #2ecc71; background: rgba(46,204,113,0.15); } .toast-error { border-left: 4px solid #e74c3c; background: rgba(231,76,60,0.15); } .toast-warning { border-left: 4px solid #f1c40f; background: rgba(241,196,15,0.15); } button:active, .btn:active { transform: scale(0.96); transition: transform 0.1s; } button, .btn { min-height: 44px; } </style>
 </head>
 <body>
 
@@ -67,7 +67,7 @@
         <!-- NEW CARD: Yêu Cầu Nạp Xu -->
         <div class="card">
             <h3><span class="icon">📋</span> Yêu Cầu Nạp Xu (Chờ Duyệt)</h3>
-            <table class="data-table" style="margin-bottom: 0;">
+            <div class="table-responsive"><table class="data-table" style="margin-bottom: 0;">
                 <thead>
                     <tr>
                         <th>Email Người Nạp</th>
@@ -81,7 +81,7 @@
                 <tbody id="depositsTableBody">
                     <tr><td colspan="6" style="text-align:center; color:#aaa;">Đang tải...</td></tr>
                 </tbody>
-            </table>
+            </table></div>
         </div>
 
         <div class="card">
@@ -93,7 +93,7 @@
                 </div>
             </div>
 
-            <table class="data-table">
+            <div class="table-responsive"><table class="data-table">
                 <thead>
                     <tr>
                         <th>Email</th>
@@ -106,7 +106,7 @@
                 <tbody id="usersTableBody">
                     <!-- Users here -->
                 </tbody>
-            </table>
+            </table></div>
         </div>
 
         <div class="card">
@@ -120,7 +120,7 @@
                 </label>
                 <button class="btn" onclick="addMission()">Thêm</button>
             </div>
-            <table>
+            <div class="table-responsive"><table>
                 <thead>
                     <tr>
                         <th>Tên Nhiệm Vụ</th>
@@ -132,7 +132,7 @@
                 <tbody id="missionsTableBody">
                     <!-- Missions here -->
                 </tbody>
-            </table>
+            </table></div>
         </div>
 
         <div class="card">
@@ -148,3 +148,5 @@
     <script src="admin.js"></script>
 </body>
 </html>
+
+
