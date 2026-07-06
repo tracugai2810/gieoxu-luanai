@@ -363,8 +363,7 @@ async function approveDeposit(id) {
     if (!confirm("Bạn có chắc chắn muốn Duyệt yêu cầu này? Hệ thống sẽ tự động cộng xu cho User.")) return;
     try {
         await fetchAdmin('approve_deposit', 'POST', { id });
-        loadDeposits();
-        loadUsers(); // Cập nhật lại số dư user nếu cần
+        loadAdminData(); // Tải lại toàn bộ bảng (deposits, users, stats)
     } catch (e) {
         alert("Lỗi: " + e.message);
     }
@@ -374,7 +373,7 @@ async function rejectDeposit(id) {
     if (!confirm("Từ chối yêu cầu này?")) return;
     try {
         await fetchAdmin('reject_deposit', 'POST', { id });
-        loadDeposits();
+        loadDeposits(); // Chỉ tải lại bảng deposits
     } catch (e) {
         alert("Lỗi: " + e.message);
     }
