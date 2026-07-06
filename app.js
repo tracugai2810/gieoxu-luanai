@@ -1333,7 +1333,6 @@ function startCoinToss() {
     const modal = document.getElementById('coin-toss-modal');
     const resultsList = document.getElementById('toss-results-list');
     const tossBtn = document.getElementById('toss-btn');
-    const finishBtn = document.getElementById('finish-toss-btn');
     const statusText = document.getElementById('toss-status');
     const coins = document.querySelectorAll('.coin');
     const progressFill = document.getElementById('toss-progress-fill');
@@ -1342,7 +1341,6 @@ function startCoinToss() {
     tossBtn.style.display = 'block';
     tossBtn.disabled = false;
     tossBtn.innerHTML = 'Gieo Hào 1';
-    finishBtn.style.display = 'none';
     statusText.innerText = 'Hào 1 / 6';
     if (progressFill) progressFill.style.width = '0%';
 

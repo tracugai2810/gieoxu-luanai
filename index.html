@@ -289,16 +289,21 @@
 
     <!-- Question Modal before Toss -->
     <div id="questionModal" class="auth-modal">
-        <div class="auth-modal-content" style="max-width: 400px;">
+        <div class="auth-modal-content" style="max-width: 480px;">
             <span class="auth-close" onclick="document.getElementById('questionModal').style.display='none'">&times;</span>
-            <h3 style="margin-bottom: 15px; text-align: center; color: var(--accent-light);">Nhập câu hỏi của bạn</h3>
-            <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 15px; text-align: center;">
-                Câu hỏi càng chi tiết, kết quả luận giải càng chuẩn xác.
-            </p>
-            <div class="ai-input-group" style="margin-bottom: 20px;">
-                <textarea id="preTossQuestion" placeholder="Ví dụ: Tôi muốn hỏi về công việc sắp tới có thuận lợi không? Tôi có nên chuyển việc vào tháng này?" style="width: 100%; min-height: 100px; padding: 12px; background: var(--bg-main); border: 2px solid var(--border-color); border-radius: 8px; color: #fff; font-family: inherit; resize: vertical;"></textarea>
+            <h3 style="margin-bottom: 12px; text-align: center; color: var(--accent-light); font-size: 1.4rem;">☯ Đặt câu hỏi trước khi gieo quẻ</h3>
+            <div style="background: rgba(217,119,6,0.1); border: 1px solid rgba(217,119,6,0.35); border-radius: 10px; padding: 14px 16px; margin-bottom: 18px;">
+                <p style="font-size: 1rem; color: #f59e0b; margin-bottom: 6px; font-weight: 700; text-align: center;">⚠️ Lưu ý quan trọng</p>
+                <p style="font-size: 1rem; color: var(--text-primary); line-height: 1.7; text-align: center;">
+                    Câu hỏi <strong style="color: #f59e0b;">càng chi tiết, cụ thể</strong> thì kết quả luận giải <strong style="color: #f59e0b;">càng chính xác</strong>.<br>
+                    Câu hỏi chung chung sẽ khiến quẻ khó linh ứng và kết quả không rõ ràng.
+                </p>
             </div>
-            <button class="btn-main-cta" onclick="submitQuestionAndToss()" style="padding: 14px; font-size: 1.1rem;">
+            <div class="ai-input-group" style="margin-bottom: 18px;">
+                <label style="display: block; font-size: 1rem; font-weight: 600; color: var(--text-primary); margin-bottom: 8px;">Câu hỏi của bạn:</label>
+                <textarea id="preTossQuestion" placeholder="Ví dụ: Tôi muốn hỏi về công việc sắp tới có thuận lợi không? Tôi có nên chuyển việc vào tháng này?" style="width: 100%; min-height: 110px; padding: 14px; background: var(--bg-main); border: 2px solid var(--border-color); border-radius: 8px; color: #fff; font-family: inherit; font-size: 1rem; resize: vertical;"></textarea>
+            </div>
+            <button class="btn-main-cta" onclick="submitQuestionAndToss()" style="padding: 16px; font-size: 1.15rem;">
                 Bắt Đầu Gieo Xu
             </button>
         </div>
