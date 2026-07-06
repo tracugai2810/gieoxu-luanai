@@ -133,11 +133,11 @@ module.exports = async (req, res) => {
 
         if (req.method === 'GET' && action === 'missions') {
             // 1. Lấy tất cả missions active
-            let missions = await supabaseRequest(`/rest/v1/missions?is_active=eq.true&order=is_hot.desc,created_at.desc`, 'GET', null, false, { Authorization: `Bearer ${token}` });
+            let missions = await supabaseRequest(`/rest/v1/missions?is_active=eq.true&order=is_hot.desc,created_at.desc`, 'GET', null, true);
             if (!missions) missions = [];
             
             // 2. Lấy các mission_id user đã làm
-            let userMissions = await supabaseRequest(`/rest/v1/user_missions?user_id=eq.${userId}&select=mission_id`, 'GET', null, false, { Authorization: `Bearer ${token}` });
+            let userMissions = await supabaseRequest(`/rest/v1/user_missions?user_id=eq.${userId}&select=mission_id`, 'GET', null, true);
             if (!userMissions) userMissions = [];
             const completedIds = userMissions.map(um => um.mission_id);
             

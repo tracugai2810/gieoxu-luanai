@@ -213,8 +213,8 @@ async function loadMissions() {
                 <td style="color:#f1c40f;">+${m.reward_xu}</td>
                 <td>${m.is_hot ? '🔥' : ''}</td>
                 <td>
-                    <button class="btn" style="padding: 5px 10px; font-size: 0.8rem; background: ${m.is_active ? '#2ecc71' : '#e74c3c'};" onclick="toggleMissionActive('${m.id}', ${!m.is_active})">
-                        ${m.is_active ? 'Bật' : 'Tắt'}
+                    <button class="btn" style="padding: 5px 10px; font-size: 0.8rem; background: ${m.is_active ? '#e74c3c' : '#2ecc71'};" onclick="toggleMissionActive('${m.id}', ${!m.is_active})">
+                        ${m.is_active ? 'Tắt' : 'Bật'}
                     </button>
                 </td>
                 <td>
