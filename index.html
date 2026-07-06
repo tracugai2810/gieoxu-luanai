@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <link rel="preconnect" href="https://www.googletagmanager.com">
+    <link rel="dns-prefetch" href="https://www.googletagmanager.com">
+    <!-- Google Tag Manager (Lazy Load for PageSpeed) -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var gtmLoaded = false;
+        function loadGTM() {
+            if (gtmLoaded) return;
+            gtmLoaded = true;
+            (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+            new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+            j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+            'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+            })(window,document,'script','dataLayer','GTM-WGN2HS5B');
+        }
+        window.addEventListener('scroll', loadGTM, {passive: true});
+        window.addEventListener('touchstart', loadGTM, {passive: true});
+        window.addEventListener('mousemove', loadGTM, {passive: true});
+        window.addEventListener('click', loadGTM, {passive: true});
+        setTimeout(loadGTM, 3500);
+    });
+    </script>
+    <!-- End Google Tag Manager -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="description" content="Gieo Quẻ Lục Hào online miễn phí - Tung xu gieo quẻ, xem bói dịch lý chính xác. Thành tâm gieo quẻ, hỏi sự linh ứng.">
+    <meta property="og:title" content="Gieo Quẻ Lục Hào - Tung Xu Gieo Quẻ Online">
+    <meta property="og:description" content="Gieo quẻ Lục Hào online miễn phí. Tung xu gieo quẻ dịch lý chính xác, nhanh chóng. Tải ảnh quẻ về máy ngay.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://gieoque.id.vn/">
+    <meta property="og:image" content="https://gieoque.id.vn/banner.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Gieo Quẻ Lục Hào - Tung Xu Gieo Quẻ Online">
+    <meta name="twitter:description" content="Gieo quẻ Lục Hào online miễn phí. Tung xu gieo quẻ dịch lý chính xác, nhanh chóng. Tải ảnh quẻ về máy ngay.">
+    <meta name="twitter:image" content="https://gieoque.id.vn/banner.png">
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+    <link rel="canonical" href="https://gieoque.id.vn/">
+    <meta name="theme-color" content="#0c1222">
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <title>Gieo Quẻ Lục Hào</title>
+
+    <!-- Schema.org JSON-LD -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Gieo Quẻ Lục Hào",
+      "url": "https://gieoque.id.vn/",
+      "description": "Ứng dụng Gieo Quẻ Lục Hào trực tuyến miễn phí bằng cách tung 3 đồng xu.",
+      "applicationCategory": "LifestyleApplication",
+      "operatingSystem": "All"
+    }
+    </script>
+
+    <!-- Preconnect for faster resource loading -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+
+    <!-- Preload critical assets -->
+    <link rel="preload" href="duong.png" as="image">
+    <link rel="preload" href="am.png" as="image">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="styles.css?v=2">
+</head>
+
+<body>
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WGN2HS5B"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+    <div class="app-container">
+        <main class="main-content">
+            <!-- Hero -->
+            <div class="hero-section">
+                <h1>Gieo Quẻ Lục Hào</h1>
+            </div>
+
+            <!-- Instructions -->
+            <div class="instructions-card">
+                <p><strong>Hướng dẫn:</strong> Tập trung suy nghĩ vào vấn đề bạn muốn hỏi, rồi bấm <em>Gieo Xu</em>. Tung xu 6 lần (từ Hào 1 đến Hào 6), bấm <em>Hoàn Tất</em> để xem kết quả.</p>
+            </div>
+
+            <!-- Date picker -->
+            <div class="date-section">
+                <label for="inputDate">Thời gian gieo quẻ</label>
+                <input type="datetime-local" id="inputDate" class="form-input">
+            </div>
+
+            <!-- Main CTA -->
+            <button class="btn-main-cta" id="btn-gieo-xu" onclick="startCoinToss()">
+                <img src="duong.png" alt="Đồng xu gieo quẻ Lục Hào" class="cta-coin-icon">
+                <span>Gieo Xu</span>
+            </button>
+
+            <!-- Hidden form elements for divination logic -->
+            <div id="linesContainer" style="display:none;"></div>
+
+            <!-- Result Section -->
+            <section class="result-section" id="resultSection">
+                <div id="result-display" class="result-card">
+                    <h2 class="result-title">🔮 Chi Tiết Quẻ Gieo</h2>
+
+                    <div class="image-display" id="imageDisplay">
+                        <!-- Generated image will appear here -->
+                    </div>
+
+                    <div class="save-hint">
+                        <span class="hint-desktop">💡 Bấm nút [Tải Ảnh Quẻ] hoặc click chuột phải vào ảnh để lưu.</span>
+                        <span class="hint-mobile">💡 Bấm nút [Tải Ảnh Quẻ] hoặc nhấn giữ vào ảnh để lưu.</span>
+                    </div>
+
+                    <div class="action-buttons">
+                        <button class="btn btn-download" id="downloadBtn" onclick="downloadImage()">
+                            <span class="btn-icon">📸</span>
+                            Tải Ảnh Quẻ
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Hidden Capture Area (for html2canvas) -->
+        <div id="captureArea">
+            <div id="captureTarget"></div>
+        </div>
+
+        <!-- Loading Overlay -->
+        <div id="loading-overlay">
+            <div class="loader-content">
+                <div class="spinner"></div>
+                <p>Đang tạo ảnh kết quả...</p>
+            </div>
+        </div>
+
+        <!-- Coin Toss Overlay (full-screen immersive) -->
+        <div id="coin-toss-modal" class="toss-overlay">
+            <div class="toss-panel">
+                <div class="toss-header">
+                    <h3>☯ Gieo Xu</h3>
+                    <button class="close-btn" onclick="closeCoinTossModal()">✕</button>
+                </div>
+
+                <div class="toss-body">
+                    <!-- Progress -->
+                    <div class="toss-progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="toss-progress-fill"></div>
+                        </div>
+                        <span id="toss-status" class="toss-status-text">Hào 1 / 6</span>
+                    </div>
+
+                    <!-- Coins Area -->
+                    <div class="coin-area">
+                        <!-- Smoke effect -->
+                        <div class="smoke-container">
+                            <div class="smoke-s"></div>
+                            <div class="smoke-s"></div>
+                            <div class="smoke-s"></div>
+                            <div class="smoke-s"></div>
+                            <div class="smoke-s"></div>
+                            <div class="smoke-s"></div>
+                            <div class="smoke-s"></div>
+                            <div class="smoke-s"></div>
+                            <div class="smoke-s"></div>
+                            <div class="smoke-s"></div>
+                        </div>
+                        <div class="coin-container">
+                            <div class="coin-wrapper">
+                                <div class="coin" id="coin-1">
+                                    <div class="coin-face front" style="background-image: url('duong.png');"></div>
+                                    <div class="coin-face back" style="background-image: url('am.png');"></div>
+                                </div>
+                            </div>
+                            <div class="coin-wrapper">
+                                <div class="coin" id="coin-2">
+                                    <div class="coin-face front" style="background-image: url('duong.png');"></div>
+                                    <div class="coin-face back" style="background-image: url('am.png');"></div>
+                                </div>
+                            </div>
+                            <div class="coin-wrapper">
+                                <div class="coin" id="coin-3">
+                                    <div class="coin-face front" style="background-image: url('duong.png');"></div>
+                                    <div class="coin-face back" style="background-image: url('am.png');"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Toss Button -->
+                    <button id="toss-btn" class="btn-toss" onclick="performToss()">
+                        Gieo Hào 1
+                    </button>
+                    <button id="finish-toss-btn" class="btn-finish" onclick="finishTossSequence()"
+                        style="display: none;">
+                        ✨ Hoàn Tất & Xem Quẻ
+                    </button>
+
+                    <!-- Hexagram Building Up -->
+                    <div class="hex-building" id="toss-results-list">
+                        <!-- Visual hexagram lines will build here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <section class="seo-content-section">
+        <details class="seo-details">
+            <summary class="seo-summary">Tìm hiểu thêm về công cụ Gieo Quẻ Kinh Dịch</summary>
+            <div class="seo-container">
+                <h2>Công Cụ Gieo Quẻ Kinh Dịch Online Miễn Phí</h2>
+                <p>Khi đứng trước những quyết định quan trọng, việc <strong>gieo quẻ kinh dịch online</strong> (hay còn gọi là <strong>gieo que online</strong>) là giải pháp tâm linh tiện lợi giúp bạn tìm kiếm lời khuyên từ cổ nhân. Ứng dụng này giúp bạn thực hiện <strong>cách gieo quẻ kinh dịch</strong> bằng 3 đồng xu ngay trên điện thoại một cách chuẩn xác, mang lại trải nghiệm <strong>bốc quẻ kinh dịch</strong> chân thực nhất.</p>
+                
+                <h3>Quẻ Lục Hào là gì?</h3>
+                <p>Bản chất của ứng dụng này là phương pháp <strong>gieo quẻ lục hào</strong> cổ xưa. Khi bạn gieo đủ 6 lần, hệ thống sẽ <strong>lấy quẻ kinh dịch</strong> hoàn chỉnh gồm 6 hào. Mỗi một <strong>quẻ lục hào</strong> đều mang ý nghĩa sâu sắc, giúp bạn có thêm góc nhìn chiêm nghiệm về công danh, tài lộc hay sự nghiệp.</p>
+                
+                <h3>Câu Hỏi Thường Gặp (FAQ)</h3>
+                <div class="faq-item">
+                    <h4>1. Gieo quẻ hỏi việc là gì?</h4>
+                    <p><strong>Gieo quẻ hỏi việc</strong> (hoặc <strong>gieo quẻ kinh dịch hỏi việc</strong>) là khi bạn đang phân vân về quyết định thăng tiến, nhảy việc hay kinh doanh. Hãy tĩnh tâm suy nghĩ về công việc đó, sau đó <strong>rút quẻ kinh dịch</strong> để xem cát hung. Lưu ý không nên <strong>gieo quẻ hỏi việc 2</strong> lần cho cùng một vấn đề trong thời gian ngắn để đảm bảo sự linh ứng.</p>
+                </div>
+                <div class="faq-item">
+                    <h4>2. Có nên gieo quẻ đầu năm không?</h4>
+                    <p>Rất nên! <strong>Gieo quẻ đầu năm</strong> là nét đẹp văn hóa để xem vận hạn, may rủi. Việc <strong>rút quẻ online</strong> vào dịp giao thừa hoặc đầu xuân mang lại những chiêm nghiệm thú vị cho suốt một năm tới.</p>
+                </div>
+                <div class="faq-item">
+                    <h4>3. Làm sao để gieo quẻ chuẩn nhất?</h4>
+                    <p>Dù là <strong>gieo que kinh dich</strong> thực tế hay gieo trên web, nguyên tắc quan trọng nhất là "Tâm thành tắc linh". Trước khi <strong>gieo quẻ</strong>, hãy rửa tay sạch sẽ, giữ tâm thanh tịnh và chỉ tập trung vào một câu hỏi duy nhất.</p>
+                </div>
+                
+                <p class="seo-note">Lưu ý: Mọi kết quả từ việc gieo quẻ chỉ mang tính chất tham khảo, giúp bạn có thêm góc nhìn đa chiều để tự tin đưa ra quyết định của riêng mình.</p>
+            </div>
+        </details>
+    </section>
+
+    <script defer src="app.js?v=2"></script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Gieo quẻ hỏi việc là gì?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Gieo quẻ hỏi việc (hoặc gieo quẻ kinh dịch hỏi việc) là khi bạn đang phân vân về quyết định thăng tiến, nhảy việc hay kinh doanh. Hãy tĩnh tâm suy nghĩ về công việc đó, sau đó rút quẻ kinh dịch để xem cát hung. Lưu ý không nên gieo 2 lần cho cùng một vấn đề trong thời gian ngắn để đảm bảo sự linh ứng."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Có nên gieo quẻ đầu năm không?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Gieo quẻ đầu năm là nét đẹp văn hóa để xem vận hạn, may rủi. Việc rút quẻ online vào dịp giao thừa hoặc đầu xuân mang lại những chiêm nghiệm thú vị cho suốt một năm tới."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Làm sao để gieo quẻ chuẩn nhất?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Nguyên tắc quan trọng nhất là Tâm thành tắc linh. Trước khi gieo quẻ, hãy rửa tay sạch sẽ, giữ tâm thanh tịnh và chỉ tập trung vào một câu hỏi duy nhất."
+          }
+        }
+      ]
+    }
+    </script>
+</body>
+
+</html>
