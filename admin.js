@@ -345,18 +345,27 @@ async function deleteMission(id) {
 // DEPOSIT REQUESTS
 // ==========================================
 
+let previousPendingCount = -1;
+
 async function loadDeposits() {
     try {
         const data = await fetchAdmin('get_deposits');
         const tbody = document.getElementById('depositsTableBody');
         tbody.innerHTML = '';
         
-        if (!data.deposits || data.deposits.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#aaa;">Chưa có yêu cầu nào</td></tr>';
+        const pendingDeposits = data.deposits ? data.deposits.filter(d => d.status === 'pending') : [];
+
+        if (previousPendingCount !== -1 && pendingDeposits.length > previousPendingCount) {
+            showToast("Có yêu cầu nạp xu mới!", "warning");
+        }
+        previousPendingCount = pendingDeposits.length;
+
+        if (pendingDeposits.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#aaa;">Chưa có yêu cầu nào chờ duyệt</td></tr>';
             return;
         }
 
-        data.deposits.forEach(d => {
+        pendingDeposits.forEach(d => {
             const tr = document.createElement('tr');
             const timeStr = new Date(d.created_at).toLocaleString('vi-VN');
             
