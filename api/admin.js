@@ -131,6 +131,12 @@ module.exports = async (req, res) => {
             const { userId } = req.body;
             if (!userId) return res.status(400).json({ error: 'Missing userId' });
             
+            // Delete from dependent tables first to prevent foreign key constraint violations
+            await supabaseRequest(`/rest/v1/user_missions?user_id=eq.${userId}`, 'DELETE');
+            await supabaseRequest(`/rest/v1/xu_transactions?user_id=eq.${userId}`, 'DELETE');
+            await supabaseRequest(`/rest/v1/deposit_requests?user_id=eq.${userId}`, 'DELETE');
+            await supabaseRequest(`/rest/v1/divination_history?user_id=eq.${userId}`, 'DELETE');
+
             // Delete from auth.users
             await supabaseRequest(`/auth/v1/admin/users/${userId}`, 'DELETE');
             // Xóa profile (phòng trường hợp DB không có cascade)
