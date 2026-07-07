@@ -20,11 +20,36 @@ function showToast(msg, type = 'info') {
 let adminToken = localStorage.getItem('sa_token') || null;
 
 async function checkLogin() {
-    if (!adminToken) return;
+    let token = localStorage.getItem('sa_token') || adminToken;
+    if (!token) return;
     try {
-        const roleRes = await fetch('/api/auth?action=profile', {
-            headers: { 'Authorization': `Bearer ${adminToken}` }
+        let roleRes = await fetch('/api/auth?action=profile', {
+            headers: { 'Authorization': `Bearer ${token}` }
         });
+        
+        if (roleRes.status === 401 || roleRes.status === 403) {
+            const refreshToken = localStorage.getItem('sa_refresh');
+            if (refreshToken) {
+                const refreshRes = await fetch('/api/auth?action=refresh', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ refresh_token: refreshToken })
+                });
+                const refreshData = await refreshRes.json();
+                if (refreshData.success && refreshData.data && refreshData.data.access_token) {
+                    token = refreshData.data.access_token;
+                    localStorage.setItem('sa_token', token);
+                    if (refreshData.data.refresh_token) {
+                        localStorage.setItem('sa_refresh', refreshData.data.refresh_token);
+                    }
+                    adminToken = token;
+                    roleRes = await fetch('/api/auth?action=profile', {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                }
+            }
+        }
+        
         const roleData = await roleRes.json();
         if (roleData.success && roleData.profile.role === 'admin') {
             document.getElementById('login-overlay').style.display = 'none';
@@ -37,7 +62,7 @@ async function checkLogin() {
             adminToken = null;
         }
     } catch (e) {
-        // network error
+        console.error("Login check error:", e);
     }
 }
 
@@ -45,16 +70,44 @@ async function checkLogin() {
 checkLogin();
 
 async function fetchAdmin(action, method = 'GET', body = null) {
+    let token = localStorage.getItem('sa_token') || adminToken;
     const options = {
         method,
         headers: {
-            'Authorization': `Bearer ${adminToken}`,
+            'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
         }
     };
     if (body) options.body = JSON.stringify(body);
     
-    const res = await fetch(`/api/admin?action=${action}`, options);
+    let res = await fetch(`/api/admin?action=${action}`, options);
+    
+    if (res.status === 401 || res.status === 403) {
+        const refreshToken = localStorage.getItem('sa_refresh');
+        if (refreshToken) {
+            try {
+                const refreshRes = await fetch('/api/auth?action=refresh', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ refresh_token: refreshToken })
+                });
+                const refreshData = await refreshRes.json();
+                if (refreshData.success && refreshData.data && refreshData.data.access_token) {
+                    token = refreshData.data.access_token;
+                    localStorage.setItem('sa_token', token);
+                    if (refreshData.data.refresh_token) {
+                        localStorage.setItem('sa_refresh', refreshData.data.refresh_token);
+                    }
+                    adminToken = token;
+                    options.headers['Authorization'] = `Bearer ${token}`;
+                    res = await fetch(`/api/admin?action=${action}`, options);
+                }
+            } catch (err) {
+                console.error("Auto refresh failed in fetchAdmin:", err);
+            }
+        }
+    }
+    
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || "Lỗi server");
     return data;
