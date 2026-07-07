@@ -98,7 +98,7 @@
                         </div>
                         <div class="user-info-short" style="display: flex; flex-direction: column; line-height: 1.2;">
                             <div class="user-name" id="userName" style="font-size: 0.8rem; color: #aaa; max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">user@gmail.com</div>
-                            <div class="user-balance" style="font-size: 0.95rem;">Số dư: <strong style="color:var(--accent);"><span id="xuAmount">0</span> xu</strong></div>
+                            <div class="user-balance" onclick="openTransactionsModal()" style="font-size: 0.95rem; cursor: pointer; transition: opacity 0.2s;" onmouseover="this.style.opacity=0.8" onmouseout="this.style.opacity=1">Số dư: <strong style="color:var(--accent); text-decoration: underline dashed rgba(255,215,0,0.5); text-underline-offset: 3px;"><span id="xuAmount">0</span> xu 🕒</strong></div>
                         </div>
                     </div>
                     
@@ -364,6 +364,18 @@
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M21.731 11.523c0-4.887-4.364-8.847-9.743-8.847-5.378 0-9.743 3.96-9.743 8.847 0 2.872 1.543 5.434 3.899 7.042-.32 1.34-.848 3.197-.872 3.284-.044.161.01.336.14.437.078.06.173.091.267.091.071 0 .142-.016.208-.05 1.534-.784 3.738-2.022 4.195-2.28a10.457 10.457 10.457 0 0 0 1.905.176c5.379 0 9.744-3.96 9.744-8.847V11.523z"/></svg>
                     Liên Hệ Admin (Zalo)
                 </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Transactions Modal (Lịch sử xu) -->
+    <div id="transactionsModal" class="auth-modal" style="display:none; align-items: flex-start; padding-top: 5vh; overflow-y: auto;">
+        <div class="auth-modal-content" style="max-width: 500px; width: 95%; margin: auto; position: relative; background: #0f172a; border: 1px solid rgba(255,215,0,0.3);">
+            <button class="auth-close" onclick="closeTransactionsModal()">×</button>
+            <h2 style="color: #f1c40f; text-align: center; margin-top: 0; margin-bottom: 20px; font-size: 1.5rem;">📜 Lịch Sử Giao Dịch</h2>
+            
+            <div id="transactionsContainer" style="max-height: 60vh; overflow-y: auto; padding-right: 5px;">
+                <div style="text-align: center; color: #aaa; padding: 20px;">Đang tải lịch sử...</div>
             </div>
         </div>
     </div>

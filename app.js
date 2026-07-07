@@ -1793,3 +1793,78 @@ function fallbackCopy(text) {
     alert('Đã copy mã giới thiệu: ' + text);
 }
 
+// ============================================
+// TRANSACTION HISTORY LOGIC (Lịch Sử Xu)
+// ============================================
+
+function openTransactionsModal() {
+    document.getElementById('transactionsModal').style.display = 'flex';
+    fetchAndRenderTransactions();
+}
+
+function closeTransactionsModal() {
+    document.getElementById('transactionsModal').style.display = 'none';
+}
+
+async function fetchAndRenderTransactions() {
+    const container = document.getElementById('transactionsContainer');
+    const token = localStorage.getItem('sa_token');
+    
+    if (!token) {
+        container.innerHTML = '<div style="text-align: center; color: #aaa; padding: 20px;">Vui lòng đăng nhập để xem lịch sử.</div>';
+        return;
+    }
+
+    container.innerHTML = '<div style="text-align: center; color: #aaa; padding: 20px;">Đang tải lịch sử giao dịch...</div>';
+
+    try {
+        const res = await fetch('/api/auth?action=transactions', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+        
+        if (!data.success || !data.data) {
+            container.innerHTML = `<div style="text-align: center; color: #e74c3c; padding: 20px;">Lỗi: ${data.error || 'Không thể tải lịch sử'}</div>`;
+            return;
+        }
+
+        const txs = data.data;
+        if (txs.length === 0) {
+            container.innerHTML = '<div style="text-align: center; color: #aaa; padding: 20px;">Chưa có giao dịch xu nào.</div>';
+            return;
+        }
+
+        let html = '<div class="tx-list">';
+        txs.forEach(function(tx) {
+            const isPlus = tx.amount > 0;
+            const amountText = isPlus ? '+' + tx.amount : tx.amount;
+            const amountClass = isPlus ? 'plus' : 'minus';
+            
+            // Format time
+            const date = new Date(tx.created_at);
+            const timeStr = date.toLocaleString('vi-VN', { 
+                hour: '2-digit', 
+                minute: '2-digit', 
+                day: '2-digit', 
+                month: '2-digit', 
+                year: 'numeric' 
+            });
+            
+            html += '<div class="tx-item">' +
+                        '<div class="tx-info">' +
+                            '<span class="tx-desc">' + (tx.description || 'Giao dịch xu') + '</span>' +
+                            '<span class="tx-time">' + timeStr + '</span>' +
+                        '</div>' +
+                        '<span class="tx-amount ' + amountClass + '">' + amountText + ' xu</span>' +
+                    '</div>';
+        });
+        html += '</div>';
+        container.innerHTML = html;
+
+    } catch (err) {
+        console.error("Lỗi fetch transactions:", err);
+        container.innerHTML = '<div style="text-align: center; color: #e74c3c; padding: 20px;">Lỗi kết nối. Vui lòng thử lại sau.</div>';
+    }
+}
+
+

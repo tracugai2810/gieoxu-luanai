@@ -162,6 +162,11 @@ module.exports = async (req, res) => {
             });
         }
 
+        if (req.method === 'GET' && action === 'transactions') {
+            const txs = await supabaseRequest(`/rest/v1/xu_transactions?user_id=eq.${userId}&order=created_at.desc&limit=50`, 'GET', null, true);
+            return res.status(200).json({ success: true, data: txs || [] });
+        }
+
         if (req.method === 'POST' && action === 'request_deposit') {
             const { mission_id } = req.body;
             if (!mission_id) {
