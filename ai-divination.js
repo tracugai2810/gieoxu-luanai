@@ -10,6 +10,16 @@ let selectedModelId = null;
 
 // --- Khởi tạo & Lắng nghe ---
 document.addEventListener('DOMContentLoaded', () => {
+    // Xử lý callback từ Google Auth (nếu có)
+    if (window.location.hash.includes('access_token=')) {
+        const hashParams = new URLSearchParams(window.location.hash.substring(1));
+        const token = hashParams.get('access_token');
+        if (token) {
+            setToken(token);
+            history.replaceState(null, null, ' '); // Xóa hash trên URL cho đẹp
+        }
+    }
+    
     initAuth();
     
     // Lắng nghe sự kiện quẻ đã gieo xong từ app.js
@@ -123,87 +133,23 @@ function showAuthModal(tab) {
         if (t.dataset.tab === tab) t.classList.add('active');
         else t.classList.remove('active');
     });
-    
-    renderAuthForm(tab);
-}
-
-function hideAuthModal() {
+function showAuthModal(tab = 'login') {
     const modal = document.getElementById('authModal');
-    if (modal) modal.style.display = 'none';
-}
-
-function renderAuthForm(tab) {
     const form = document.getElementById('authForm');
-    if (!form) return;
     
-    const isLogin = tab === 'login';
-    const title = isLogin ? 'Đăng nhập' : 'Đăng ký nhận 5 xu';
-    const btnText = isLogin ? 'Đăng Nhập' : 'Đăng Ký Ngay';
+    // Reset any old submit handlers
+    form.onsubmit = (e) => e.preventDefault();
     
     form.innerHTML = `
-        <h3>${title}</h3>
-        <div class="form-group">
-            <label>Tài khoản</label>
-            <input type="text" id="authEmail" required placeholder="Nhập tên đăng nhập (nickname)">
-        </div>
-        <div class="form-group">
-            <label>Mật khẩu</label>
-            <input type="password" id="authPassword" required placeholder="******">
-        </div>
-        <div id="authError" class="auth-error"></div>
-        <button type="submit" class="btn-submit">${btnText}</button>
+        <h3 style="text-align: center; margin-bottom: 20px;">Đăng Nhập Hệ Thống</h3>
+        <p style="text-align: center; margin-bottom: 20px; color: #666;">Đăng nhập bằng tài khoản Google của bạn để nhận 5 xu miễn phí mỗi ngày!</p>
+        <button type="button" class="btn-submit" onclick="loginWithGoogle()" style="background-color: #ea4335; color: white; display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; border-radius: 8px; padding: 12px; font-weight: bold; border: none; cursor: pointer;">
+            <svg style="width: 24px; height: 24px;" viewBox="0 0 24 24"><path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+            Tiếp tục với Google
+        </button>
     `;
-    
-    form.onsubmit = async (e) => {
-        e.preventDefault();
-        const email = document.getElementById('authEmail').value;
-        const password = document.getElementById('authPassword').value;
-        const errDiv = document.getElementById('authError');
-        
-        try {
-            const btn = form.querySelector('button');
-            btn.disabled = true;
-            btn.textContent = 'Đang xử lý...';
-            
-            const action = isLogin ? 'login' : 'signup';
-            const res = await fetch(`/api/auth?action=${action}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password })
-            });
-            
-            const data = await res.json();
-            
-            if (!data.success) {
-                let errorMsg = data.error || 'Có lỗi xảy ra';
-                if (errorMsg.toLowerCase().includes('rate limit')) {
-                    errorMsg = 'Hệ thống đang quá tải, bạn thao tác quá nhanh. Vui lòng thử lại sau ít phút!';
-                } else if (errorMsg.toLowerCase().includes('already registered')) {
-                    errorMsg = 'Email này đã được đăng ký!';
-                } else if (errorMsg.toLowerCase().includes('invalid login credentials')) {
-                    errorMsg = 'Email hoặc mật khẩu không chính xác!';
-                }
-                errDiv.textContent = errorMsg;
-                errDiv.style.display = 'block';
-                btn.disabled = false;
-                btn.textContent = btnText;
-            } else {
-                if (!isLogin) {
-                    alert('Đăng ký thành công! Bạn được tặng 5 xu. Vui lòng đăng nhập lại.');
-                    showAuthModal('login');
-                } else {
-                    setToken(data.data.access_token);
-                    await initAuth();
-                    hideAuthModal();
-                }
-            }
-        } catch (err) {
-            errDiv.textContent = 'Lỗi kết nối';
-            errDiv.style.display = 'block';
-        }
-    };
+    modal.style.display = 'flex';
 }
-
 function logout() {
     setToken(null);
     currentUser = null;

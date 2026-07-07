@@ -38,39 +38,9 @@ module.exports = async (req, res) => {
     const { action } = req.query;
 
     try {
-        if (req.method === 'POST' && action === 'signup') {
-            let { email, password } = req.body;
-            if (!email || !password) return res.status(400).json({ error: 'Tài khoản và Mật khẩu là bắt buộc' });
-            
-            email = email.trim();
-            if (!email.includes('@')) email = `${email}@gieoque.id.vn`;
-            
-            // Forward client IP to prevent Vercel IP from being rate limited
-            const clientIp = req.headers['x-forwarded-for'] || req.socket?.remoteAddress || '';
-            const customHeaders = clientIp ? { 'x-forwarded-for': clientIp } : {};
-            
-            // Supabase auth API
-            const result = await supabaseRequest('/auth/v1/signup', 'POST', { email, password }, false, customHeaders);
-            
-            return res.status(200).json({ 
-                success: true, 
-                message: 'Đăng ký thành công! Vui lòng kiểm tra Email (cả mục Spam/Thư rác) để xác nhận tài khoản trước khi đăng nhập nhé.',
-                data: result 
-            });
-        }
-
-        if (req.method === 'POST' && action === 'login') {
-            let { email, password } = req.body;
-            if (!email || !password) return res.status(400).json({ error: 'Tài khoản và Mật khẩu là bắt buộc' });
-            
-            email = email.trim();
-            if (!email.includes('@')) email = `${email}@gieoque.id.vn`;
-
-            const clientIp = req.headers['x-forwarded-for'] || req.socket?.remoteAddress || '';
-            const customHeaders = clientIp ? { 'x-forwarded-for': clientIp } : {};
-
-            const result = await supabaseRequest('/auth/v1/token?grant_type=password', 'POST', { email, password }, false, customHeaders);
-            return res.status(200).json({ success: true, data: result });
+        // OAuth handles login and signup directly via Supabase.
+        if (action === 'signup' || action === 'login') {
+            return res.status(400).json({ error: 'Please use Google Login' });
         }
 
         // Các action dưới đây yêu cầu Authorization header

@@ -1678,7 +1678,7 @@ function doMission(id, url) {
             if (emailElem && emailElem.innerText) {
                 emailText = emailElem.innerText.trim();
             }
-            document.getElementById('donateUserEmail').innerText = emailText;
+            document.getElementById('donateUserEmail').innerText = emailText.split('@')[0];
             
             document.getElementById('donateModal').style.display = 'flex';
         } else {

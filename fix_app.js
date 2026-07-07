@@ -240,7 +240,7 @@ function doMission(id, url) {
             if (emailElem && emailElem.innerText.includes('@')) {
                 emailText = emailElem.innerText.split(' |')[0].trim();
             }
-            document.getElementById('donateUserEmail').innerText = emailText;
+            document.getElementById('donateUserEmail').innerText = emailText.split('@')[0];
             
             document.getElementById('donateModal').style.display = 'flex';
         } else {
