@@ -122,17 +122,6 @@ function updateAuthUI(user) {
     }
 }
 
-function showAuthModal(tab) {
-    const modal = document.getElementById('authModal');
-    if (!modal) return;
-    
-    modal.style.display = 'flex';
-    
-    const tabs = document.querySelectorAll('.auth-tab');
-    tabs.forEach(t => {
-        if (t.dataset.tab === tab) t.classList.add('active');
-        else t.classList.remove('active');
-    });
 function showAuthModal(tab = 'login') {
     const modal = document.getElementById('authModal');
     const form = document.getElementById('authForm');
@@ -148,7 +137,13 @@ function showAuthModal(tab = 'login') {
             Tiếp tục với Google
         </button>
     `;
+    
     modal.style.display = 'flex';
+}
+
+function hideAuthModal() {
+    const modal = document.getElementById('authModal');
+    if (modal) modal.style.display = 'none';
 }
 function logout() {
     setToken(null);
