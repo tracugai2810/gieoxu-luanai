@@ -38,6 +38,14 @@ module.exports = async (req, res) => {
     const { action } = req.query;
 
     try {
+        if (req.method === 'POST' && action === 'refresh') {
+            const { refresh_token } = req.body;
+            if (!refresh_token) return res.status(400).json({ error: 'Missing refresh token' });
+            
+            const result = await supabaseRequest('/auth/v1/token?grant_type=refresh_token', 'POST', { refresh_token }, false);
+            return res.status(200).json({ success: true, data: result });
+        }
+        
         // OAuth handles login and signup directly via Supabase.
         if (action === 'signup' || action === 'login') {
             return res.status(400).json({ error: 'Please use Google Login' });

@@ -17,7 +17,7 @@ function showToast(msg, type = 'info') {
     }, 3000);
 }
 
-let adminToken = localStorage.getItem('sb_token') || null;
+let adminToken = localStorage.getItem('sa_token') || null;
 
 async function checkLogin() {
     if (!adminToken) return;

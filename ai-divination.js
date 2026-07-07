@@ -14,8 +14,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (window.location.hash.includes('access_token=')) {
         const hashParams = new URLSearchParams(window.location.hash.substring(1));
         const token = hashParams.get('access_token');
+        const refreshToken = hashParams.get('refresh_token');
         if (token) {
-            setToken(token);
+            setToken(token, refreshToken);
             history.replaceState(null, null, ' '); // Xóa hash trên URL cho đẹp
         }
     }
@@ -41,9 +42,13 @@ function getToken() {
     return localStorage.getItem('sa_token');
 }
 
-function setToken(token) {
+function setToken(token, refreshToken = null) {
     if (token) localStorage.setItem('sa_token', token);
     else localStorage.removeItem('sa_token');
+    
+    if (refreshToken) localStorage.setItem('sa_refresh', refreshToken);
+    else if (!token) localStorage.removeItem('sa_refresh');
+    
     currentToken = token;
 }
 
@@ -55,10 +60,32 @@ async function initAuth() {
     }
     
     try {
-        const res = await fetch('/api/auth?action=profile', {
+        let res = await fetch('/api/auth?action=profile', {
             headers: { 'Authorization': `Bearer ${token}` }
         });
+        
+        // If unauthorized, try to refresh
+        if (res.status === 401 || res.status === 403 || !res.ok) {
+            const refreshToken = localStorage.getItem('sa_refresh');
+            if (refreshToken) {
+                const refreshRes = await fetch('/api/auth?action=refresh', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ refresh_token: refreshToken })
+                });
+                const refreshData = await refreshRes.json();
+                if (refreshData.success && refreshData.data && refreshData.data.access_token) {
+                    setToken(refreshData.data.access_token, refreshData.data.refresh_token);
+                    // Retry profile fetch
+                    res = await fetch('/api/auth?action=profile', {
+                        headers: { 'Authorization': `Bearer ${getToken()}` }
+                    });
+                }
+            }
+        }
+
         const data = await res.json();
+
         
         if (data.success) {
             currentUser = data.profile;
