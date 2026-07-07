@@ -121,6 +121,8 @@ function updateAuthUI(user) {
         let displayEmail = user.email || user.id;
         if (displayEmail.endsWith('@gieoque.id.vn')) {
             displayEmail = displayEmail.replace('@gieoque.id.vn', '');
+        } else if (displayEmail.endsWith('@luchao.io.vn')) {
+            displayEmail = displayEmail.replace('@luchao.io.vn', '');
         }
         document.getElementById('userName').textContent = displayEmail;
         

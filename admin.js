@@ -150,6 +150,7 @@ async function loadAdminData() {
             let email = u.email || u.id;
             let displayEmail = email;
             if (displayEmail.endsWith('@gieoque.id.vn')) displayEmail = displayEmail.replace('@gieoque.id.vn', '');
+            if (displayEmail.endsWith('@luchao.io.vn')) displayEmail = displayEmail.replace('@luchao.io.vn', '');
             
             tbody.innerHTML += `
                 <tr>

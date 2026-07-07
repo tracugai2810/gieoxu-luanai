@@ -652,7 +652,7 @@ function renderCaptureHTML(data) {
                         return `<div class="ss-item">${s}</div>`;
                     }).join('');
                     
-                    itemsHtml += `<div class="ss-item" style="grid-column: 3 / span 2; text-align: right; font-style: italic; color: #666; align-self: center;">Link gieo quẻ: gieoque.id.vn</div>`;
+                    itemsHtml += `<div class="ss-item" style="grid-column: 3 / span 2; text-align: right; font-style: italic; color: #666; align-self: center;">Link gieo quẻ: luchao.io.vn</div>`;
                     return itemsHtml;
                 })()}
             </div>
