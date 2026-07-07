@@ -67,8 +67,17 @@ module.exports = async (req, res) => {
         if (req.method === 'GET' && action === 'profile') {
             const profiles = await supabaseRequest(`/rest/v1/profiles?id=eq.${userId}&select=*`, 'GET', null, false, { Authorization: `Bearer ${token}` });
             if (!profiles || profiles.length === 0) return res.status(404).json({ error: 'Profile not found' });
-            const profile = profiles[0];
+            let profile = profiles[0];
             if (!profile.email) profile.email = user.email;
+
+            // Generate referral_code if missing
+            if (!profile.referral_code) {
+                const crypto = require('crypto');
+                const refCode = crypto.createHash('md5').update(profile.id).digest('hex').substring(0, 6).toUpperCase();
+                await supabaseRequest(`/rest/v1/profiles?id=eq.${userId}`, 'PATCH', { referral_code: refCode }, true);
+                profile.referral_code = refCode;
+            }
+
             return res.status(200).json({ success: true, profile: profile });
         }
 
@@ -124,6 +133,21 @@ module.exports = async (req, res) => {
             const today = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Ho_Chi_Minh" })).toISOString().split('T')[0];
             const hasCheckedIn = profiles && profiles.length > 0 && profiles[0].last_checkin === today;
 
+            // 4. Calculate Valid Referrals (Users referred by this user who have approved deposits)
+            let validReferrals = 0;
+            const hasReferralMissions = missions.some(m => m.action_link && m.action_link.startsWith('#referral_'));
+            if (hasReferralMissions) {
+                const referredProfiles = await supabaseRequest(`/rest/v1/profiles?referred_by=eq.${userId}&select=id`, 'GET', null, true);
+                if (referredProfiles && referredProfiles.length > 0) {
+                    const referredIds = referredProfiles.map(p => p.id);
+                    const depositStats = await supabaseRequest(`/rest/v1/deposit_requests?status=eq.approved&user_id=in.(${referredIds.join(',')})&select=user_id`, 'GET', null, true);
+                    if (depositStats) {
+                        const uniqueDonators = new Set(depositStats.map(d => d.user_id));
+                        validReferrals = uniqueDonators.size;
+                    }
+                }
+            }
+
             return res.status(200).json({
                 success: true,
                 missions: missions.map(m => ({
@@ -132,7 +156,8 @@ module.exports = async (req, res) => {
                 })),
                 checkinState: {
                     is_completed: hasCheckedIn
-                }
+                },
+                validReferrals: validReferrals
             });
         }
 
@@ -150,6 +175,75 @@ module.exports = async (req, res) => {
             }, true);
 
             return res.status(200).json({ success: true, message: 'Đã gửi yêu cầu nạp' });
+        }
+
+
+        if (req.method === 'POST' && action === 'enter_referral') {
+            const { referral_code } = req.body;
+            if (!referral_code) return res.status(400).json({ error: 'Mã giới thiệu không hợp lệ' });
+
+            const profiles = await supabaseRequest(`/rest/v1/profiles?id=eq.${userId}&select=referred_by,xu_balance`, 'GET', null, false, { Authorization: `Bearer ${token}` });
+            if (!profiles || profiles.length === 0) return res.status(404).json({ error: 'Profile not found' });
+            if (profiles[0].referred_by) return res.status(400).json({ error: 'Bạn đã nhập mã giới thiệu trước đó rồi' });
+
+            const targetProfiles = await supabaseRequest(`/rest/v1/profiles?referral_code=eq.${referral_code}&select=id`, 'GET', null, true);
+            if (!targetProfiles || targetProfiles.length === 0) return res.status(404).json({ error: 'Mã giới thiệu không tồn tại' });
+            
+            const referrerId = targetProfiles[0].id;
+            if (referrerId === userId) return res.status(400).json({ error: 'Bạn không thể tự giới thiệu chính mình' });
+
+            const newXu = profiles[0].xu_balance + 5;
+            await supabaseRequest(`/rest/v1/profiles?id=eq.${userId}`, 'PATCH', { referred_by: referrerId, xu_balance: newXu }, true);
+            
+            await supabaseRequest('/rest/v1/xu_transactions', 'POST', {
+                user_id: userId,
+                amount: 5,
+                type: 'referral_bonus',
+                description: 'Thưởng nhập mã giới thiệu'
+            }, true);
+
+            return res.status(200).json({ success: true, message: 'Nhập mã thành công, bạn được cộng 5 xu!' });
+        }
+
+        if (req.method === 'POST' && action === 'claim_referral') {
+            const { mission_id, target } = req.body;
+            if (!mission_id || !target) return res.status(400).json({ error: 'Thiếu thông tin' });
+
+            // Ensure not already claimed
+            const userMissions = await supabaseRequest(`/rest/v1/user_missions?user_id=eq.${userId}&mission_id=eq.${mission_id}&select=id`, 'GET', null, true);
+            if (userMissions && userMissions.length > 0) return res.status(400).json({ error: 'Bạn đã nhận thưởng mốc này rồi' });
+
+            // Count valid referrals
+            const referredProfiles = await supabaseRequest(`/rest/v1/profiles?referred_by=eq.${userId}&select=id`, 'GET', null, true);
+            if (!referredProfiles || referredProfiles.length === 0) return res.status(400).json({ error: 'Chưa đủ số lượng giới thiệu' });
+            
+            const referredIds = referredProfiles.map(p => p.id);
+            const depositStats = await supabaseRequest(`/rest/v1/deposit_requests?status=eq.approved&user_id=in.(${referredIds.join(',')})&select=user_id`, 'GET', null, true);
+            if (!depositStats) return res.status(400).json({ error: 'Chưa đủ số lượng giới thiệu' });
+            
+            const uniqueDonators = new Set(depositStats.map(d => d.user_id));
+            if (uniqueDonators.size < target) return res.status(400).json({ error: `Bạn cần ${target} lượt giới thiệu hợp lệ (người dùng nạp tiền) để nhận thưởng.` });
+
+            // Grant reward
+            const missionData = await supabaseRequest(`/rest/v1/missions?id=eq.${mission_id}&select=reward`, 'GET', null, true);
+            const reward = missionData[0].reward;
+
+            const myProfile = await supabaseRequest(`/rest/v1/profiles?id=eq.${userId}&select=xu_balance`, 'GET', null, true);
+            await supabaseRequest(`/rest/v1/profiles?id=eq.${userId}`, 'PATCH', { xu_balance: myProfile[0].xu_balance + reward }, true);
+            
+            await supabaseRequest('/rest/v1/user_missions', 'POST', {
+                user_id: userId,
+                mission_id: mission_id
+            }, true);
+
+            await supabaseRequest('/rest/v1/xu_transactions', 'POST', {
+                user_id: userId,
+                amount: reward,
+                type: 'mission_reward',
+                description: `Thưởng mốc giới thiệu ${target} người`
+            }, true);
+
+            return res.status(200).json({ success: true, message: `Nhận thành công ${reward} xu!` });
         }
 
 

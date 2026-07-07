@@ -342,8 +342,17 @@
     <!-- Missions Modal (Kiếm Xu) -->
     <div id="missionsModal" class="auth-modal" style="display:none; align-items: flex-start; padding-top: 5vh; overflow-y: auto;">
         <div class="auth-modal-content" style="max-width: 500px; width: 95%; margin: auto; position: relative;">
-            <button class="auth-close" onclick="closeMissionsModal()">✕</button>
-            <h2 style="color: #f1c40f; text-align: center; margin-top: 0; margin-bottom: 20px; font-size: 1.5rem;">💰 Nhiệm Vụ Kiếm Xu</h2>
+            <button class="auth-close" onclick="closeMissionsModal()">×</button>
+            <h2 style="color: #f1c40f; text-align: center; margin-top: 0; margin-bottom: 20px; font-size: 1.5rem;">🎁 Nhiệm Vụ Kiếm Xu</h2>
+            
+            <div id="referralCodeBox" style="display:none; text-align: center; margin-bottom: 20px; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 10px; border: 1px dashed rgba(255,215,0,0.5);">
+                <div style="font-size: 0.9rem; color: #aaa; margin-bottom: 5px;">Mã giới thiệu của bạn</div>
+                <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+                    <strong id="myReferralCode" style="font-size: 1.5rem; color: #f1c40f; letter-spacing: 2px;">---</strong>
+                    <button onclick="copyReferralCode()" style="background: rgba(255,215,0,0.2); border: none; color: #f1c40f; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 0.8rem; transition: background 0.2s;">Copy</button>
+                </div>
+                <div style="font-size: 0.8rem; color: #888; margin-top: 8px;">Gửi mã này cho bạn bè, khi họ nhập mã bạn sẽ nhận thêm ưu đãi!</div>
+            </div>
             
             <div id="missionsContainer">
                 <div style="text-align: center; color: #aaa; padding: 20px;">Đang tải danh sách nhiệm vụ...</div>

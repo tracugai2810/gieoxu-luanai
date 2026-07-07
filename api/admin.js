@@ -242,7 +242,7 @@ module.exports = async (req, res) => {
             await supabaseRequest(`/rest/v1/deposit_requests?id=eq.${id}`, 'PATCH', { status: 'approved' });
 
             // 2. Lấy profile và cộng xu
-            const profiles = await supabaseRequest(`/rest/v1/profiles?id=eq.${deposit.user_id}&select=id,xu_balance`);
+            const profiles = await supabaseRequest(`/rest/v1/profiles?id=eq.${deposit.user_id}&select=id,xu_balance,referred_by`);
             if (profiles && profiles.length > 0) {
                 const newXu = profiles[0].xu_balance + reward;
                 await supabaseRequest(`/rest/v1/profiles?id=eq.${deposit.user_id}`, 'PATCH', { xu_balance: newXu });
@@ -252,8 +252,26 @@ module.exports = async (req, res) => {
                     user_id: deposit.user_id,
                     amount: reward,
                     type: 'donate',
-                    description: `Duyệt nạp xu từ nhiệm vụ: ${missions[0]?.title}`
+                    description: `Duyệt nạp xu từ nhiệm vụ: ${missions[0]?.title || 'Nạp xu'}`
                 });
+
+                // Xử lý Hoa Hồng 20% cho người giới thiệu
+                if (profiles[0].referred_by) {
+                    const referrerId = profiles[0].referred_by;
+                    const commission = Math.floor(reward * 0.2); // 20%
+                    if (commission > 0) {
+                        const refProfiles = await supabaseRequest(`/rest/v1/profiles?id=eq.${referrerId}&select=xu_balance`, 'GET');
+                        if (refProfiles && refProfiles.length > 0) {
+                            await supabaseRequest(`/rest/v1/profiles?id=eq.${referrerId}`, 'PATCH', { xu_balance: refProfiles[0].xu_balance + commission });
+                            await supabaseRequest('/rest/v1/xu_transactions', 'POST', {
+                                user_id: referrerId,
+                                amount: commission,
+                                type: 'referral_commission',
+                                description: `Hoa hồng 20% từ người được giới thiệu nạp xu`
+                            });
+                        }
+                    }
+                }
             }
 
             // 3. Mark mission completed (ignore if already completed)

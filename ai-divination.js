@@ -133,10 +133,18 @@ function updateAuthUI(user) {
         const today = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Ho_Chi_Minh" }));
         const todayStr = today.toISOString().split('T')[0];
         if (user.last_checkin !== todayStr && checkinBtn) {
+            checkinBtn.style.animation = 'pulse 1.5s infinite';
             checkinBtn.style.display = 'inline-flex';
-            checkinBtn.classList.add('pulse');
         } else if (checkinBtn) {
             checkinBtn.style.display = 'none';
+        }
+
+        // Cập nhật Referral Code
+        const refBox = document.getElementById('referralCodeBox');
+        const refCode = document.getElementById('myReferralCode');
+        if (user.referral_code && refBox && refCode) {
+            refCode.innerText = user.referral_code;
+            refBox.style.display = 'block';
         }
     } else {
         if (btnLogin) btnLogin.style.display = 'inline-block';

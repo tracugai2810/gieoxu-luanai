@@ -135,7 +135,7 @@ async function fetchAndRenderMissions() {
     }
 }
 
-function renderMissionsList(missions, checkinState) {
+function renderMissionsList(missions, checkinState, validReferrals = 0) {
     const container = document.getElementById('missionsContainer');
     let html = '<div class="mission-list">';
 
@@ -173,28 +173,48 @@ function renderMissionsList(missions, checkinState) {
 
     // 3. Render nhóm Hot chưa làm
     pendingHot.forEach(m => {
-        html += createMissionItemHTML(m);
+        html += createMissionItemHTML(m, validReferrals);
     });
 
     // 4. Render nhóm Thường chưa làm
     pendingNormal.forEach(m => {
-        html += createMissionItemHTML(m);
+        html += createMissionItemHTML(m, validReferrals);
     });
 
     // 5. Render nhóm Đã làm (Mờ đi)
     completedMissions.forEach(m => {
-        html += createMissionItemHTML(m);
+        html += createMissionItemHTML(m, validReferrals);
     });
 
     html += '</div>';
     container.innerHTML = html;
 }
 
-function createMissionItemHTML(mission) {
+function createMissionItemHTML(mission, validReferrals = 0) {
     const hotClass = mission.is_hot ? 'mission-hot' : '';
     const hotIcon = mission.is_hot ? '🔥 ' : '';
-    const btnClass = mission.is_completed ? 'completed' : '';
-    const btnText = mission.is_completed ? 'Hoàn Thành' : 'Làm';
+    let btnClass = mission.is_completed ? 'completed' : '';
+    let btnText = mission.is_completed ? 'Hoàn Thành' : 'Làm';
+    let title = mission.title;
+    
+    // Referral logic
+    if (mission.action_url && mission.action_url.startsWith('#referral_')) {
+        const parts = mission.action_url.split('_');
+        const target = parseInt(parts[1]);
+        if (!isNaN(target)) {
+            title = \`\${title} (\${validReferrals}/\${target})\`;
+            if (!mission.is_completed) {
+                if (validReferrals >= target) {
+                    btnText = 'Nhận Xu';
+                    btnClass = 'hot'; // Make it stand out
+                } else {
+                    btnText = 'Chưa Đạt';
+                }
+            }
+        }
+    } else if (mission.action_url === '#enter_referral' && !mission.is_completed) {
+        btnText = 'Nhập Mã';
+    }
     
     // Nếu có action_url, bấm Làm sẽ mở link. Nếu không thì báo lỗi chưa code link.
     const actionAttr = mission.is_completed ? '' : \`onclick="doMission('\${mission.id}', '\${mission.action_url || ''}')"\`;
@@ -202,7 +222,7 @@ function createMissionItemHTML(mission) {
     return \`
         <div class="mission-item \${hotClass}">
             <div class="mission-info">
-                <div class="mission-title">\${hotIcon}\${mission.title}</div>
+                <div class="mission-title">\${hotIcon}\${title}</div>
                 <div class="mission-reward">+\${mission.reward_xu} xu</div>
             </div>
             <div class="mission-action">
@@ -229,7 +249,15 @@ let currentDonateMissionId = null;
 
 function doMission(id, url) {
     if (url) {
-        if (url.toLowerCase().endsWith('.jpg') || url.toLowerCase().endsWith('.png')) {
+        if (url === '#enter_referral') {
+            const code = prompt("Nhập mã giới thiệu (6 ký tự):");
+            if (code) submitReferralCode(code);
+            return;
+        } else if (url.startsWith('#referral_')) {
+            const target = parseInt(url.split('_')[1]);
+            claimReferralMission(id, target);
+            return;
+        } else if (url.toLowerCase().endsWith('.jpg') || url.toLowerCase().endsWith('.png')) {
             // Hiển thị Donate Modal
             currentDonateMissionId = id;
             document.getElementById('donateQrImage').src = url;
@@ -248,6 +276,50 @@ function doMission(id, url) {
         }
     } else {
         alert("Chưa có link hướng dẫn cho nhiệm vụ này. Liên hệ Admin.");
+    }
+}
+
+async function submitReferralCode(code) {
+    const token = localStorage.getItem('sa_token');
+    if (!token) return;
+    try {
+        const res = await fetch('/api/auth?action=enter_referral', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': \`Bearer \${token}\` },
+            body: JSON.stringify({ referral_code: code.trim().toUpperCase() })
+        });
+        const data = await res.json();
+        if (data.success) {
+            alert(data.message);
+            fetchAndRenderMissions();
+            if (typeof initAuth === 'function') initAuth(); // Refresh xu
+        } else {
+            alert(data.error || "Lỗi nhập mã");
+        }
+    } catch (e) {
+        alert("Lỗi kết nối");
+    }
+}
+
+async function claimReferralMission(missionId, target) {
+    const token = localStorage.getItem('sa_token');
+    if (!token) return;
+    try {
+        const res = await fetch('/api/auth?action=claim_referral', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': \`Bearer \${token}\` },
+            body: JSON.stringify({ mission_id: missionId, target: target })
+        });
+        const data = await res.json();
+        if (data.success) {
+            alert(data.message);
+            fetchAndRenderMissions();
+            if (typeof initAuth === 'function') initAuth();
+        } else {
+            alert(data.error || "Bạn chưa đạt yêu cầu mốc này!");
+        }
+    } catch (e) {
+        alert("Lỗi kết nối");
     }
 }
 
@@ -294,4 +366,15 @@ async function confirmDonate() {
     console.log('Fixed app.js');
 } else {
     console.log('Not found');
+}
+
+function copyReferralCode() {
+    const code = document.getElementById('myReferralCode').innerText;
+    if (code && code !== '---') {
+        navigator.clipboard.writeText(code).then(() => {
+            alert('�� copy m� gi?i thi?u: ' + code);
+        }).catch(err => {
+            alert('L?i copy: ' + err);
+        });
+    }
 }
