@@ -1160,27 +1160,30 @@ function downloadImage() {
     var isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
 
     // 2. iOS/iPad -> Giữ nguyên dạng chia sẻ
-    if (isIOS && navigator.share && navigator.canShare) {
-        fetch(currentImageDataUrl)
-            .then(res => res.blob())
-            .then(blob => {
-                const file = new File([blob], filename, { type: 'image/png' });
-                const shareData = { files: [file] };
-                if (navigator.canShare(shareData)) {
-                    navigator.share(shareData)
-                        .then(() => showToast('Đã mở bảng lưu/chia sẻ ảnh!'))
-                        .catch(err => {
-                            console.log('Share cancelled or failed', err);
-                            fallbackDownload(currentImageDataUrl, filename);
-                        });
-                    return;
-                }
-                fallbackDownload(currentImageDataUrl, filename);
-            })
-            .catch(err => {
-                console.error('Download error:', err);
-                fallbackDownload(currentImageDataUrl, filename);
-            });
+    if (isIOS && navigator.share) {
+        try {
+            const parts = currentImageDataUrl.split(',');
+            const mime = parts[0].match(/:(.*?);/)[1];
+            const bstr = atob(parts[1]);
+            let n = bstr.length;
+            const u8arr = new Uint8Array(n);
+            while (n--) {
+                u8arr[n] = bstr.charCodeAt(n);
+            }
+            const blob = new Blob([u8arr], { type: mime });
+            const file = new File([blob], filename, { type: 'image/png' });
+            const shareData = { files: [file] };
+            
+            navigator.share(shareData)
+                .then(() => showToast('Đã mở bảng lưu/chia sẻ ảnh!'))
+                .catch(err => {
+                    console.log('Share cancelled or failed', err);
+                    fallbackDownload(currentImageDataUrl, filename);
+                });
+        } catch (e) {
+            console.error('Manual blob conversion failed:', e);
+            fallbackDownload(currentImageDataUrl, filename);
+        }
         return;
     }
 

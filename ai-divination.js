@@ -526,21 +526,29 @@ async function downloadAIResultImage() {
 
         if (isInApp && typeof showInAppGuide === 'function') {
             showInAppGuide();
-        } else if (isIOS && navigator.share && navigator.canShare) {
-            fetch(imageDataUrl)
-                .then(res => res.blob())
-                .then(blob => {
-                    const file = new File([blob], filename, { type: 'image/png' });
-                    const shareData = { files: [file] };
-                    if (navigator.canShare(shareData)) {
-                        navigator.share(shareData).catch(err => {
-                            console.log('Share error', err);
-                            fallbackDownload(imageDataUrl, filename);
-                        });
-                    } else {
-                        fallbackDownload(imageDataUrl, filename);
-                    }
+        } else if (isIOS && navigator.share) {
+            try {
+                // Convert base64 data URL directly to Blob (fixes iOS Safari fetch size limit bug)
+                const parts = imageDataUrl.split(',');
+                const mime = parts[0].match(/:(.*?);/)[1];
+                const bstr = atob(parts[1]);
+                let n = bstr.length;
+                const u8arr = new Uint8Array(n);
+                while (n--) {
+                    u8arr[n] = bstr.charCodeAt(n);
+                }
+                const blob = new Blob([u8arr], { type: mime });
+                const file = new File([blob], filename, { type: 'image/png' });
+                const shareData = { files: [file] };
+                
+                navigator.share(shareData).catch(err => {
+                    console.log('Share error', err);
+                    if (typeof fallbackDownload === 'function') fallbackDownload(imageDataUrl, filename);
                 });
+            } catch (e) {
+                console.error('Manual blob conversion failed:', e);
+                if (typeof fallbackDownload === 'function') fallbackDownload(imageDataUrl, filename);
+            }
         } else if (typeof fallbackDownload === 'function') {
             fallbackDownload(imageDataUrl, filename);
         } else {
