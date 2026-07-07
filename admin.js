@@ -17,7 +17,7 @@ function showToast(msg, type = 'info') {
     }, 3000);
 }
 
-let adminToken = localStorage.getItem('sa_token') || null;
+let adminToken = localStorage.getItem('sb_token') || null;
 
 async function checkLogin() {
     if (!adminToken) return;
@@ -43,30 +43,6 @@ async function checkLogin() {
 
 // Call on load
 checkLogin();
-
-async function loginAdmin() {
-    const email = document.getElementById('adminEmail').value;
-    const password = document.getElementById('adminPassword').value;
-    
-    try {
-        const res = await fetch('/api/auth?action=login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password })
-        });
-        const data = await res.json();
-        
-        if (data.success) {
-            adminToken = data.data.access_token;
-            localStorage.setItem('sa_token', adminToken);
-            checkLogin();
-        } else {
-            showToast(data.error || "Sai email hoặc mật khẩu");
-        }
-    } catch (e) {
-        showToast("Lỗi kết nối");
-    }
-}
 
 async function fetchAdmin(action, method = 'GET', body = null) {
     const options = {
