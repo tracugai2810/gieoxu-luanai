@@ -136,16 +136,12 @@ module.exports = async (req, res) => {
 
             // 4. Calculate Valid Referrals (Users referred by this user who have approved deposits)
             let validReferrals = 0;
-            let dbgReferredProfiles = null;
-            let dbgDepositStats = null;
             const hasReferralMissions = missions.some(m => m.action_url && m.action_url.startsWith('#referral_'));
             if (hasReferralMissions) {
                 const referredProfiles = await supabaseRequest(`/rest/v1/profiles?referred_by=eq.${userId}&select=id`, 'GET', null, true);
-                dbgReferredProfiles = referredProfiles;
                 if (referredProfiles && referredProfiles.length > 0) {
                     const referredIds = referredProfiles.map(p => p.id);
                     const depositStats = await supabaseRequest(`/rest/v1/deposit_requests?status=eq.approved&user_id=in.(${referredIds.join(',')})&select=user_id`, 'GET', null, true);
-                    dbgDepositStats = depositStats;
                     if (depositStats) {
                         const uniqueDonators = new Set(depositStats.map(d => d.user_id));
                         validReferrals = uniqueDonators.size;
@@ -162,12 +158,7 @@ module.exports = async (req, res) => {
                 checkinState: {
                     is_completed: hasCheckedIn
                 },
-                validReferrals: validReferrals,
-                debug: {
-                    userId,
-                    referredProfiles: dbgReferredProfiles,
-                    depositStats: dbgDepositStats
-                }
+                validReferrals: validReferrals
             });
         }
 

@@ -1556,8 +1556,6 @@ async function fetchAndRenderMissions() {
             headers: { 'Authorization': `Bearer ${token}` }
         });
         const data = await res.json();
-        console.log("Missions debug data:", data);
-        
         if (!data.success) {
             container.innerHTML = `<div style="text-align: center; color: #e74c3c; padding: 20px;">Lỗi: ${data.error || 'Không thể tải nhiệm vụ'}</div>`;
             return;
@@ -1623,7 +1621,7 @@ function createMissionItemHTML(mission, validReferrals) {
     var hotClass = mission.is_hot ? 'mission-hot' : '';
     var hotIcon = mission.is_hot ? '🔥 ' : '';
     var btnClass = mission.is_completed ? 'completed' : '';
-    var btnText = mission.is_completed ? 'Hoàn Thành' : 'Làm';
+    var btnText = mission.is_completed ? 'Đã Nhận' : 'Làm';
     var title = mission.title;
     
     if (mission.action_url && mission.action_url.indexOf('#referral_') === 0) {
