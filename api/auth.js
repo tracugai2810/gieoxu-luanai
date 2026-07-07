@@ -164,7 +164,19 @@ module.exports = async (req, res) => {
 
         if (req.method === 'GET' && action === 'transactions') {
             const txs = await supabaseRequest(`/rest/v1/xu_transactions?user_id=eq.${userId}&order=created_at.desc&limit=50`, 'GET', null, true);
-            return res.status(200).json({ success: true, data: txs || [] });
+            const mappedTxs = (txs || []).map(tx => {
+                let desc = tx.description || 'Giao dịch xu';
+                if (desc.includes('Luận quẻ bằng model') || desc.includes('Luận giải quẻ tự động') || desc.includes('Luận giải quẻ')) {
+                    desc = 'Luận giải tự động';
+                }
+                desc = desc.replace(/nạp xu/gi, 'donate').replace(/nập xu/gi, 'donate');
+                desc = desc.replace(/Duyệt nạp xu/gi, 'Duyệt donate');
+                return {
+                    ...tx,
+                    description: desc
+                };
+            });
+            return res.status(200).json({ success: true, data: mappedTxs });
         }
 
         if (req.method === 'POST' && action === 'request_deposit') {
