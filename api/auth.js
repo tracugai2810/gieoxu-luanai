@@ -128,19 +128,24 @@ module.exports = async (req, res) => {
             if (!userMissions) userMissions = [];
             const completedIds = userMissions.map(um => um.mission_id);
             
-            // 3. Lấy thông tin điểm danh (last_checkin)
-            const profiles = await supabaseRequest(`/rest/v1/profiles?id=eq.${userId}&select=last_checkin`, 'GET', null, false, { Authorization: `Bearer ${token}` });
+            // 3. Lấy thông tin điểm danh (last_checkin) và người giới thiệu (referred_by)
+            const profiles = await supabaseRequest(`/rest/v1/profiles?id=eq.${userId}&select=last_checkin,referred_by`, 'GET', null, false, { Authorization: `Bearer ${token}` });
             const today = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Ho_Chi_Minh" })).toISOString().split('T')[0];
             const hasCheckedIn = profiles && profiles.length > 0 && profiles[0].last_checkin === today;
+            const hasReferredBy = profiles && profiles.length > 0 && profiles[0].referred_by !== null;
 
             // 4. Calculate Valid Referrals (Users referred by this user who have approved deposits)
             let validReferrals = 0;
-            const hasReferralMissions = missions.some(m => m.action_link && m.action_link.startsWith('#referral_'));
+            let dbgReferredProfiles = null;
+            let dbgDepositStats = null;
+            const hasReferralMissions = missions.some(m => m.action_url && m.action_url.startsWith('#referral_'));
             if (hasReferralMissions) {
                 const referredProfiles = await supabaseRequest(`/rest/v1/profiles?referred_by=eq.${userId}&select=id`, 'GET', null, true);
+                dbgReferredProfiles = referredProfiles;
                 if (referredProfiles && referredProfiles.length > 0) {
                     const referredIds = referredProfiles.map(p => p.id);
                     const depositStats = await supabaseRequest(`/rest/v1/deposit_requests?status=eq.approved&user_id=in.(${referredIds.join(',')})&select=user_id`, 'GET', null, true);
+                    dbgDepositStats = depositStats;
                     if (depositStats) {
                         const uniqueDonators = new Set(depositStats.map(d => d.user_id));
                         validReferrals = uniqueDonators.size;
@@ -152,12 +157,17 @@ module.exports = async (req, res) => {
                 success: true,
                 missions: missions.map(m => ({
                     ...m,
-                    is_completed: completedIds.includes(m.id)
+                    is_completed: m.action_url === '#enter_referral' ? hasReferredBy : completedIds.includes(m.id)
                 })),
                 checkinState: {
                     is_completed: hasCheckedIn
                 },
-                validReferrals: validReferrals
+                validReferrals: validReferrals,
+                debug: {
+                    userId,
+                    referredProfiles: dbgReferredProfiles,
+                    depositStats: dbgDepositStats
+                }
             });
         }
 

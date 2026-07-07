@@ -1,4 +1,4 @@
-﻿// --- TOAST SYSTEM ---
+// --- TOAST SYSTEM ---
 function showToast(msg, type = 'info') {
     let container = document.getElementById('toast-container');
     if (!container) {
@@ -1556,6 +1556,7 @@ async function fetchAndRenderMissions() {
             headers: { 'Authorization': `Bearer ${token}` }
         });
         const data = await res.json();
+        console.log("Missions debug data:", data);
         
         if (!data.success) {
             container.innerHTML = `<div style="text-align: center; color: #e74c3c; padding: 20px;">Lỗi: ${data.error || 'Không thể tải nhiệm vụ'}</div>`;
@@ -1575,20 +1576,18 @@ function renderMissionsList(missions, checkinState, validReferrals) {
     const container = document.getElementById('missionsContainer');
     let html = '<div class="mission-list">';
 
-    const checkinClass = checkinState.is_completed ? 'completed' : '';
-    const checkinText = checkinState.is_completed ? 'Đã Nhận' : 'Làm';
-    const checkinAction = checkinState.is_completed ? '' : 'onclick="doCheckinMission()"';
-    
-    html += '<div class="mission-item"><div class="mission-info"><div class="mission-title">📅 Điểm danh hàng ngày</div><div class="mission-reward">+5 xu</div></div><div class="mission-action"><button id="btnMissionCheckin" class="btn-mission ' + checkinClass + '" ' + checkinAction + '>' + checkinText + '</button></div></div>';
-
+    let enterReferralMission = null;
     const pendingHot = [];
     const pendingNormal = [];
     const completedMissions = [];
 
     missions.forEach(function(m) {
         if (m.action_url && (m.action_url.toLowerCase().endsWith('.jpg') || m.action_url.toLowerCase().endsWith('.png'))) { m.is_completed = false; }
+        
         if (m.is_completed) {
             completedMissions.push(m);
+        } else if (m.action_url === '#enter_referral') {
+            enterReferralMission = m;
         } else if (m.is_hot) {
             pendingHot.push(m);
         } else {
@@ -1596,8 +1595,23 @@ function renderMissionsList(missions, checkinState, validReferrals) {
         }
     });
 
+    // 0. Render Nhập mã giới thiệu if not completed (At the very top)
+    if (enterReferralMission) {
+        html += createMissionItemHTML(enterReferralMission, validReferrals);
+    }
+
+    // 1. Điểm danh hàng ngày (Luôn ở trên cùng hoặc ngay dưới Nhập mã)
+    const checkinClass = checkinState.is_completed ? 'completed' : '';
+    const checkinText = checkinState.is_completed ? 'Đã Nhận' : 'Làm';
+    const checkinAction = checkinState.is_completed ? '' : 'onclick="doCheckinMission()"';
+    
+    html += '<div class="mission-item"><div class="mission-info"><div class="mission-title">📅 Điểm danh hàng ngày</div><div class="mission-reward">+5 xu</div></div><div class="mission-action"><button id="btnMissionCheckin" class="btn-mission ' + checkinClass + '" ' + checkinAction + '>' + checkinText + '</button></div></div>';
+
+    // 2. Render other uncompleted missions
     pendingHot.forEach(function(m) { html += createMissionItemHTML(m, validReferrals); });
     pendingNormal.forEach(function(m) { html += createMissionItemHTML(m, validReferrals); });
+    
+    // 3. Render completed missions
     completedMissions.forEach(function(m) { html += createMissionItemHTML(m, validReferrals); });
 
     html += '</div>';
