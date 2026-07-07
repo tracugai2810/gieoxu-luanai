@@ -1553,6 +1553,201 @@ async function fetchAndRenderMissions() {
     container.innerHTML = '<div style="text-align: center; color: #aaa; padding: 20px;">Đang tải danh sách nhiệm vụ...</div>';
 
     try {
+    tossBtn.innerHTML = 'Gieo Hào 1';
+    statusText.innerText = 'Hào 1 / 6';
+    if (progressFill) progressFill.style.width = '0%';
+
+    // Reset Coins Rotation
+    coins.forEach(coin => {
+        coin.classList.remove('tossing');
+        coin.style.transform = 'rotateY(0deg)';
+        const front = coin.querySelector('.front');
+        const back = coin.querySelector('.back');
+        if (front) front.style.transform = 'rotateY(0deg)';
+        if (back) back.style.transform = 'rotateY(180deg)';
+    });
+
+    // Show Modal
+    modal.classList.add('active');
+}
+
+function closeCoinTossModal() {
+    document.getElementById('coin-toss-modal').classList.remove('active');
+}
+
+function performToss() {
+    if (currentTossIndex > 6) return;
+
+    const tossBtn = document.getElementById('toss-btn');
+    tossBtn.disabled = true;
+
+    const coins = document.querySelectorAll('.coin');
+
+    // Add animation class
+    coins.forEach((coin, index) => {
+        coin.classList.remove('tossing');
+        // Force reflow
+        void coin.offsetWidth;
+        coin.classList.add('tossing');
+    });
+
+    // Generate Results (The Core Random Logic)
+    // 3 Independent Coins: True = Yang (Front/Duong), False = Yin (Back/Am)
+    const r1 = Math.random() < 0.5;
+    const r2 = Math.random() < 0.5;
+    const r3 = Math.random() < 0.5;
+
+    const coinResults = [r1, r2, r3];
+    const yangCount = coinResults.filter(r => r).length;
+
+    // Calculate Line Result
+    // 0 Yang -> Lão Âm (Line 0)
+    // 1 Yang -> Thiếu Dương (Line 1)
+    // 2 Yang -> Thiếu Âm (Line 2)
+    // 3 Yang -> Lão Dương (Line 3)
+    let lineValue, lineText, lineSymbol;
+    let isMoving = false;
+    let isYangLine = false;
+
+    if (yangCount === 0) {
+        lineValue = 0; // Lão Âm
+        lineText = "Lão Âm (Âm động)";
+        lineSymbol = "X";
+        isMoving = true;
+        isYangLine = false; // Âm
+    } else if (yangCount === 1) {
+        lineValue = 1; // Thiếu Dương
+        lineText = "Thiếu Dương (Dương tĩnh)";
+        lineSymbol = "—";
+        isMoving = false;
+        isYangLine = true; // Dương
+    } else if (yangCount === 2) {
+        lineValue = 2; // Thiếu Âm
+        lineText = "Thiếu Âm (Âm tĩnh)";
+        lineSymbol = "--";
+        isMoving = false;
+        isYangLine = false; // Âm
+    } else {
+        lineValue = 3; // Lão Dương
+        lineText = "Lão Dương (Dương động)";
+        lineSymbol = "O";
+        isMoving = true;
+        isYangLine = true; // Dương
+    }
+
+    tossResults.push({
+        value: lineValue,
+        isYang: isYangLine,
+        isMoving: isMoving,
+        yangCount: yangCount,
+        coinDetails: coinResults
+    });
+
+    // Wait for animation to finish (2s matches new CSS animation)
+    setTimeout(() => {
+        // Stop Animation & Set Final State
+        coins.forEach((coin, index) => {
+            coin.classList.remove('tossing');
+
+            // Animation ends at rotateY(3600deg) = 10 full spins
+            const isYang = coinResults[index];
+            const finalAngle = 3600 + (isYang ? 0 : 180);
+            coin.style.transform = `rotateY(${finalAngle}deg)`;
+        });
+
+        // Update Results UI with visual hexagram line
+        addResultToStack(currentTossIndex, lineText, lineSymbol, isMoving, isYangLine);
+
+        // Update progress bar
+        const progressFill = document.getElementById('toss-progress-fill');
+        if (progressFill) progressFill.style.width = `${(currentTossIndex / 6) * 100}%`;
+
+        // Prepare next step
+        currentTossIndex++;
+
+        if (currentTossIndex <= 6) {
+            tossBtn.innerHTML = `Gieo Hào ${currentTossIndex}`;
+            tossBtn.disabled = false;
+            document.getElementById('toss-status').innerText = `Hào ${currentTossIndex} / 6`;
+        } else {
+            tossBtn.style.display = 'none';
+            document.getElementById('toss-status').innerText = 'Đã gieo xong 6 hào!';
+            setTimeout(() => finishTossSequence(), 1000);
+        }
+
+    }, 2000);
+}
+
+function addResultToStack(index, text, symbol, isMoving, isYang) {
+    const container = document.getElementById('toss-results-list');
+    const row = document.createElement('div');
+    row.className = `hex-line-result ${isMoving ? 'moving' : ''}`;
+
+    const lineType = isYang ? 'yang-line' : 'yin-line';
+    const movingClass = isMoving ? 'moving-line' : '';
+    const descText = isMoving ? (isYang ? 'Dương Động' : 'Âm Động') : (isYang ? 'Dương Tĩnh' : 'Âm Tĩnh');
+
+    row.innerHTML = `
+        <span class="hex-num">${index}</span>
+        <div class="hex-visual ${lineType} ${movingClass}"></div>
+        <span class="hex-desc">${descText}</span>
+    `;
+    container.appendChild(row);
+}
+
+function finishTossSequence() {
+    // Populate Main Form from toss results
+    tossResults.forEach((res, idx) => {
+        const lineNum = idx + 1;
+        const select = document.getElementById(`line-${lineNum}`);
+        const checkbox = document.getElementById(`moving-${lineNum}`);
+
+        if (!select || !checkbox) return;
+
+        select.value = res.isYang ? 'yang' : 'yin';
+        checkbox.checked = res.isMoving;
+    });
+
+    closeCoinTossModal();
+
+    // Auto-process divination immediately
+    setTimeout(() => {
+        processDivination();
+    }, 100);
+}
+
+// ============================================
+// INITIALIZE ON LOAD
+// ============================================
+document.addEventListener('DOMContentLoaded', init);
+
+// End of Divination functions
+
+// ============================================
+// MISSIONS LOGIC (Kiếm Xu)
+// ============================================
+
+function openMissionsModal() {
+    document.getElementById('missionsModal').style.display = 'flex';
+    fetchAndRenderMissions();
+}
+
+function closeMissionsModal() {
+    document.getElementById('missionsModal').style.display = 'none';
+}
+
+async function fetchAndRenderMissions() {
+    const container = document.getElementById('missionsContainer');
+    const token = localStorage.getItem('sa_token');
+    
+    if (!token) {
+        container.innerHTML = '<div style="text-align: center; color: #aaa; padding: 20px;">Vui lòng đăng nhập để xem nhiệm vụ.</div>';
+        return;
+    }
+
+    container.innerHTML = '<div style="text-align: center; color: #aaa; padding: 20px;">Đang tải danh sách nhiệm vụ...</div>';
+
+    try {
         const res = await fetch('/api/auth?action=missions', {
             headers: { 'Authorization': `Bearer ${token}` }
         });
@@ -1563,7 +1758,7 @@ async function fetchAndRenderMissions() {
             return;
         }
 
-        renderMissionsList(data.missions, data.checkinState);
+        renderMissionsList(data.missions, data.checkinState, data.validReferrals);
 
     } catch (err) {
         console.error("Lỗi fetch missions:", err);
@@ -1571,7 +1766,7 @@ async function fetchAndRenderMissions() {
     }
 }
 
-function renderMissionsList(missions, checkinState) {
+function renderMissionsList(missions, checkinState, validReferrals = 0) {
     const container = document.getElementById('missionsContainer');
     let html = '<div class="mission-list">';
 
@@ -1600,99 +1795,6 @@ function renderMissionsList(missions, checkinState) {
     missions.forEach(m => {
         if (m.action_url && (m.action_url.toLowerCase().endsWith('.jpg') || m.action_url.toLowerCase().endsWith('.png'))) { m.is_completed = false; }
 
-        if (m.is_completed) {
-            completedMissions.push(m);
-        } else if (m.is_hot) {
-            pendingHot.push(m);
-        } else {
-            pendingNormal.push(m);
-        }
-    });
-
-    // 3. Render nhóm Hot chưa làm
-    pendingHot.forEach(m => {
-        html += createMissionItemHTML(m);
-    });
-
-    // 4. Render nhóm Thường chưa làm
-    pendingNormal.forEach(m => {
-        html += createMissionItemHTML(m);
-    });
-
-    // 5. Render nhóm Đã làm (Mờ đi)
-    completedMissions.forEach(m => {
-        html += createMissionItemHTML(m);
-    });
-
-    html += '</div>';
-    container.innerHTML = html;
-}
-
-function createMissionItemHTML(mission) {
-    const hotClass = mission.is_hot ? 'mission-hot' : '';
-    const hotIcon = mission.is_hot ? '🔥 ' : '';
-    const btnClass = mission.is_completed ? 'completed' : '';
-    const btnText = mission.is_completed ? 'Hoàn Thành' : 'Làm';
-    
-    // Nếu có action_url, bấm Làm sẽ mở link. Nếu không thì báo lỗi chưa code link.
-    const actionAttr = mission.is_completed ? '' : `onclick="doMission('${mission.id}', '${mission.action_url || ''}')"`;
-
-    return `
-        <div class="mission-item ${hotClass}">
-            <div class="mission-info">
-                <div class="mission-title">${hotIcon}${mission.title}</div>
-                <div class="mission-reward">+${mission.reward_xu} xu</div>
-            </div>
-            <div class="mission-action">
-                <button class="btn-mission ${btnClass}" ${actionAttr}>${btnText}</button>
-            </div>
-        </div>
-    `;
-}
-
-async function doCheckinMission() {
-    const btn = document.getElementById('btnMissionCheckin');
-    btn.disabled = true;
-    btn.innerText = "Đang xử lý...";
-    
-    await window.dailyCheckin(); // Gọi hàm cũ ở app.js
-    
-    // Đợi 1 giây rồi refresh lại danh sách để cập nhật UI popup
-    setTimeout(() => {
-        fetchAndRenderMissions();
-    }, 1000);
-}
-
-let currentDonateMissionId = null;
-
-function doMission(id, url) {
-    if (url) {
-        if (url.toLowerCase().endsWith('.jpg') || url.toLowerCase().endsWith('.png')) {
-            // Hiển thị Donate Modal
-            currentDonateMissionId = id;
-            document.getElementById('donateQrImage').src = url;
-            
-            // Lấy email user từ giao diện
-            const emailElem = document.getElementById('userName');
-            let emailText = "Email_Của_Bạn";
-            if (emailElem && emailElem.innerText) {
-                emailText = emailElem.innerText.trim();
-            }
-            document.getElementById('donateUserEmail').innerText = emailText.split('@')[0];
-            
-            document.getElementById('donateModal').style.display = 'flex';
-        } else {
-            window.open(url, '_blank');
-        }
-    } else {
-        showToast("Chưa có link hướng dẫn cho nhiệm vụ này. Liên hệ Admin.");
-    }
-}
-
-function closeDonateModal() {
-    document.getElementById('donateModal').style.display = 'none';
-    currentDonateMissionId = null;
-}
 
 async function confirmDonate() {
     if (!currentDonateMissionId) return;
