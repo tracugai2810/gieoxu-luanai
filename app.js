@@ -527,6 +527,18 @@ function renderCaptureHTML(data) {
     // Construct HTML using the prepared data
     let rowsHtml = '';
 
+    // Determine if user has asked a question, otherwise default to Can chi
+    let questionLabel = "Can chi";
+    let questionValue = dateInfo.fullCanChi;
+    const rawQuestion = document.getElementById('preTossQuestion') ? document.getElementById('preTossQuestion').value.trim() : '';
+    if (rawQuestion) {
+        questionLabel = "C\u00e2u h\u1ecfi";
+        questionValue = rawQuestion;
+        if (questionValue.length > 45) {
+            questionValue = questionValue.substring(0, 45) + '...';
+        }
+    }
+
     // Lines are stored 0-5 (Hào 1-6), display 6-1
     for (let i = 5; i >= 0; i--) {
         const line = linesData[i];
@@ -547,15 +559,7 @@ function renderCaptureHTML(data) {
         const isCTK = line.isCTK ? 'K' : '-';
 
         // Changed part (Quẻ Biến)
-        let cRel = line.changed ? line.changed.relation : getRelation(line.hanh, data.palaceEl); // Default to main if not moving/changed logic handled in calc
-        // Actually, for static lines, the relation is same as main if we consider it doesn't change. 
-        // But in the original code: 
-        // const cTriName = (i <= 3) ? QUAI_SO[cInIdx].name : QUAI_SO[cOutIdx].name;
-        // const cBranch = NAP_GIAP[cTriName][idx];
-        // const cEl = NGU_HANH_CHI[cBranch];
-        // const cRel = getRelation(cEl, palaceEl);
-        // This logic runs for ALL lines in original code.
-        // In my calc function I should preserve this.
+        let cRel = line.changed ? line.changed.relation : getRelation(line.hanh, data.palaceEl); 
 
         rowsHtml += `
         <tr class="${rowClass}">
@@ -580,7 +584,7 @@ function renderCaptureHTML(data) {
         <div class="info-header">
             <div class="info-content">
                 <div class="info-line"><strong>Ngày giờ:</strong> ${data.formattedDate} &nbsp;&nbsp;&nbsp;&nbsp; <strong>Phương pháp:</strong> ${methodText}</div>
-                <div class="info-line"><strong>Can chi:</strong> ${dateInfo.fullCanChi}</div>
+                <div class="info-line"><strong>${questionLabel}:</strong> ${questionValue}</div>
                 <div class="info-line"><strong>Hào tâm:</strong> ${dateInfo.haoTamText || ''} &nbsp;&nbsp;&nbsp;&nbsp; <strong>Tuần Không:</strong> <span class="highlight">${dateInfo.tuanKhong}</span></div>
                 <div class="info-line"><strong>Nhật Thần:</strong> <span class="highlight">${dateInfo.nhatThan}</span> &nbsp;&nbsp;&nbsp;&nbsp; <strong>Nguyệt Lệnh:</strong> <span class="highlight">${dateInfo.nguyetLenh}</span></div>
             </div>
