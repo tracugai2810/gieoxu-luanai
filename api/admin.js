@@ -252,7 +252,7 @@ module.exports = async (req, res) => {
                     user_id: deposit.user_id,
                     amount: reward,
                     type: 'donate',
-                    description: `Duyệt nạp xu từ nhiệm vụ: ${missions[0]?.title || 'Nạp xu'}`
+                    description: `Duyệt donate từ nhiệm vụ: ${missions[0]?.title || 'Donate'}`
                 });
 
                 // Xử lý Hoa Hồng 20% cho người giới thiệu
@@ -267,7 +267,7 @@ module.exports = async (req, res) => {
                                 user_id: referrerId,
                                 amount: commission,
                                 type: 'referral_commission',
-                                description: `Hoa hồng 20% từ người được giới thiệu nạp xu`
+                                description: `Hoa hồng 20% từ người được giới thiệu donate`
                             });
                         }
                     }
