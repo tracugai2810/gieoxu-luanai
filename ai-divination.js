@@ -184,6 +184,9 @@ function hideAuthModal() {
 }
 
 function loginWithGoogle() {
+    if (typeof saveDivinationState === 'function') {
+        saveDivinationState();
+    }
     const supabaseUrl = 'https://solgyybbukgeggqsxnxx.supabase.co';
     const redirectUri = encodeURIComponent(window.location.origin + window.location.pathname);
     window.location.href = `${supabaseUrl}/auth/v1/authorize?provider=google&redirect_to=${redirectUri}`;

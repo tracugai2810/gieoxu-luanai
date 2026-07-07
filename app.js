@@ -370,6 +370,7 @@ function init() {
     const now = new Date();
     now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
     document.getElementById('inputDate').value = now.toISOString().slice(0, 16);
+    setTimeout(restoreDivinationState, 100);
 }
 
 // switchTab function removed
@@ -1865,6 +1866,59 @@ async function fetchAndRenderTransactions() {
         console.error("Lỗi fetch transactions:", err);
         container.innerHTML = '<div style="text-align: center; color: #e74c3c; padding: 20px;">Lỗi kết nối. Vui lòng thử lại sau.</div>';
     }
+}
+
+function saveDivinationState() {
+    const lines = [];
+    for (let i = 1; i <= 6; i++) {
+        const select = document.getElementById(`line-${i}`);
+        const checkbox = document.getElementById(`moving-${i}`);
+        if (select && checkbox) {
+            lines.push({
+                isYang: select.value === 'yang',
+                isMoving: checkbox.checked
+            });
+        }
+    }
+    const state = {
+        inputDate: document.getElementById('inputDate').value,
+        question: document.getElementById('preTossQuestion').value,
+        lines: lines,
+        hasDivined: (window.currentHexData ? true : false)
+    };
+    localStorage.setItem('sa_pending_divination', JSON.stringify(state));
+}
+
+function restoreDivinationState() {
+    const stateStr = localStorage.getItem('sa_pending_divination');
+    if (!stateStr) return;
+    
+    try {
+        const state = JSON.parse(stateStr);
+        if (state) {
+            if (state.inputDate) document.getElementById('inputDate').value = state.inputDate;
+            if (state.question) document.getElementById('preTossQuestion').value = state.question;
+            if (state.lines && state.lines.length === 6) {
+                state.lines.forEach((l, idx) => {
+                    const lineNum = idx + 1;
+                    const select = document.getElementById(`line-${lineNum}`);
+                    const checkbox = document.getElementById(`moving-${lineNum}`);
+                    if (select) select.value = l.isYang ? 'yang' : 'yin';
+                    if (checkbox) checkbox.checked = l.isMoving;
+                });
+            }
+            if (state.hasDivined) {
+                setTimeout(() => {
+                    processDivination();
+                    localStorage.removeItem('sa_pending_divination');
+                }, 300);
+                return;
+            }
+        }
+    } catch (e) {
+        console.error('Error restoring divination state:', e);
+    }
+    localStorage.removeItem('sa_pending_divination');
 }
 
 
