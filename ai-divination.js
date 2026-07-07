@@ -145,6 +145,12 @@ function hideAuthModal() {
     const modal = document.getElementById('authModal');
     if (modal) modal.style.display = 'none';
 }
+
+function loginWithGoogle() {
+    const supabaseUrl = 'https://solgyybbukgeggqsxnxx.supabase.co';
+    const redirectUri = encodeURIComponent(window.location.origin + window.location.pathname);
+    window.location.href = `${supabaseUrl}/auth/v1/authorize?provider=google&redirect_to=${redirectUri}`;
+}
 function logout() {
     setToken(null);
     currentUser = null;
